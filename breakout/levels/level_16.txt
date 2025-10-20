@@ -1,0 +1,8 @@
+UUU  X UXX
+U  U U UX
+  UUU UX U
+UX    XUX
+UX   U XUX
+   U XXXXX
+  U U U U
+XXUXUUXX
