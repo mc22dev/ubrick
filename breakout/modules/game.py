@@ -61,6 +61,11 @@ class Game:
         self.running = True
         self.game_state = "playing"
 
+        # Config screen button rects
+        self.gravity_rect = None
+        self.magnetic_rect = None
+        self.ai_rect = None
+
     def _load_highscore(self):
         highscore_file = os.path.join(self.base_path, "highscore.txt")
         try:
@@ -125,6 +130,9 @@ class Game:
                 self.draw_game_over()
             elif self.game_state == "you_win":
                 self.draw_you_win()
+            elif self.game_state == "config":
+                self.handle_events()
+                self.draw_config_screen()
 
         pygame.quit()
         sys.exit()
@@ -160,19 +168,52 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 self.running = False
 
+    def draw_config_screen(self):
+        self.screen.fill(self.GRAY)
+        title_text = self.font.render("Configuration", True, self.WHITE)
+        self.screen.blit(title_text, (self.WIDTH // 2 - title_text.get_width() // 2, 50))
+
+        # Gravity option
+        gravity_text = self.font.render(f"Gravity: {'On' if self.gravity_enabled else 'Off'}", True, self.WHITE)
+        self.gravity_rect = self.screen.blit(gravity_text, (self.WIDTH // 2 - gravity_text.get_width() // 2, 150))
+
+        # Magnetic paddle option
+        magnetic_text = self.font.render(f"Magnetic Paddle: {'On' if self.magnetic_paddle else 'Off'}", True, self.WHITE)
+        self.magnetic_rect = self.screen.blit(magnetic_text, (self.WIDTH // 2 - magnetic_text.get_width() // 2, 200))
+
+        # AI mode option
+        ai_text = self.font.render(f"AI Mode: {'On' if self.ai_enabled else 'Off'}", True, self.WHITE)
+        self.ai_rect = self.screen.blit(ai_text, (self.WIDTH // 2 - ai_text.get_width() // 2, 250))
+
+        pygame.display.flip()
+
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_g:
+                if event.key == pygame.K_c:
+                    if self.game_state == "playing":
+                        self.game_state = "config"
+                    elif self.game_state == "config":
+                        self.game_state = "playing"
+            if self.game_state == "config" and event.type == pygame.MOUSEBUTTONDOWN:
+                if self.gravity_rect and self.gravity_rect.collidepoint(event.pos):
                     self.gravity_enabled = not self.gravity_enabled
-                if event.key == pygame.K_m:
+                elif self.magnetic_rect and self.magnetic_rect.collidepoint(event.pos):
                     self.magnetic_paddle = not self.magnetic_paddle
-                if event.key == pygame.K_a:
+                elif self.ai_rect and self.ai_rect.collidepoint(event.pos):
                     self.ai_enabled = not self.ai_enabled
-            if event.type == pygame.MOUSEBUTTONDOWN and self.ball_stuck:
-                self.ball_stuck = False
+            if self.game_state == "playing":
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_g:
+                        self.gravity_enabled = not self.gravity_enabled
+                    if event.key == pygame.K_m:
+                        self.magnetic_paddle = not self.magnetic_paddle
+                    if event.key == pygame.K_a:
+                        self.ai_enabled = not self.ai_enabled
+                if event.type == pygame.MOUSEBUTTONDOWN and self.ball_stuck:
+                    self.ball_stuck = False
 
     def update(self):
         # Paddle movement
@@ -214,6 +255,9 @@ class Game:
                     self.score += 10
 
                 # Collision logic
+                # To find the side of collision, we check the overlap of the rectangles
+                # And see which side has the minimum overlap
+
                 overlap_left = self.ball.rect.right - brick.rect.left
                 overlap_right = brick.rect.right - self.ball.rect.left
                 overlap_top = self.ball.rect.bottom - brick.rect.top
@@ -223,19 +267,14 @@ class Game:
                 min_overlap_y = min(overlap_top, overlap_bottom)
 
                 if min_overlap_x < min_overlap_y:
-                    # Horizontal collision
-                    if overlap_left < overlap_right:
-                        self.ball.rect.right = brick.rect.left
-                    else:
-                        self.ball.rect.left = brick.rect.right
                     self.ball.dx *= -1
-                else:
-                    # Vertical collision
-                    if overlap_top < overlap_bottom:
-                        self.ball.rect.bottom = brick.rect.top
+                elif min_overlap_y < min_overlap_x:
+                    if self.gravity_enabled:
+                        self.ball.vy *= -0.5
                     else:
-                        self.ball.rect.top = brick.rect.bottom
-
+                        self.ball.dy *= -1
+                else: # Corner hit
+                    self.ball.dx *= -1
                     if self.gravity_enabled:
                         self.ball.vy *= -0.5
                     else:
@@ -264,11 +303,6 @@ class Game:
 
     def draw(self):
         self.screen.fill(self.GRAY)
-
-        # Draw walls
-        pygame.draw.line(self.screen, self.WHITE, (0, 0), (self.WIDTH, 0), 2)
-        pygame.draw.line(self.screen, self.WHITE, (0, 0), (0, self.HEIGHT), 2)
-        pygame.draw.line(self.screen, self.WHITE, (self.WIDTH - 1, 0), (self.WIDTH - 1, self.HEIGHT), 2)
 
         self.paddle.draw(self.screen)
         self.ball.draw(self.screen)
