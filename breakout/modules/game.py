@@ -28,6 +28,7 @@ class Game:
         self.BALL_SPEED = 5
         self.BRICK_WIDTH = 80
         self.BRICK_HEIGHT = 30
+        self.BRICK_SPACING = 5
         self.GRAVITY = 0.2
 
         # Screen
@@ -94,14 +95,25 @@ class Game:
         bricks = []
         level_file = os.path.join(self.base_path, "levels", f"level_{level_number}.txt")
         with open(level_file, 'r') as f:
-            for row_idx, line in enumerate(f):
-                for col_idx, char in enumerate(line.strip()):
-                    if char == 'X':
-                        brick = Brick(col_idx * self.BRICK_WIDTH, row_idx * self.BRICK_HEIGHT + 50, breakable=True)
-                        bricks.append(brick)
-                    elif char == 'U':
-                        brick = Brick(col_idx * self.BRICK_WIDTH, row_idx * self.BRICK_HEIGHT + 50, breakable=False)
-                        bricks.append(brick)
+            level_data = [line.strip() for line in f]
+
+        num_rows = len(level_data)
+        num_cols = len(level_data[0]) if num_rows > 0 else 0
+
+        grid_width = num_cols * (self.BRICK_WIDTH + self.BRICK_SPACING) - self.BRICK_SPACING
+        grid_height = num_rows * (self.BRICK_HEIGHT + self.BRICK_SPACING) - self.BRICK_SPACING
+
+        offset_x = (self.WIDTH - grid_width) // 2
+        offset_y = 50
+
+        for row_idx, line in enumerate(level_data):
+            for col_idx, char in enumerate(line):
+                if char in 'XU':
+                    brick_x = offset_x + col_idx * (self.BRICK_WIDTH + self.BRICK_SPACING)
+                    brick_y = offset_y + row_idx * (self.BRICK_HEIGHT + self.BRICK_SPACING)
+                    breakable = (char == 'X')
+                    brick = Brick(brick_x, brick_y, breakable=breakable)
+                    bricks.append(brick)
         return bricks
 
     def run(self):
