@@ -18,10 +18,8 @@ class Game:
 
         # Constants
         self.WIDTH, self.HEIGHT = 800, 600
-        self.GRAY = (128, 128, 128)
+        self.GRAY = (0, 0, 0) # Background Color
         self.WHITE = (255, 255, 255)
-        self.BRICK_GREEN = (0, 255, 0)
-        self.BRICK_RED = (255, 0, 0)
         self.PADDLE_WIDTH = 100
         self.PADDLE_HEIGHT = 20
         self.BALL_RADIUS = 10
