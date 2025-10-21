@@ -3,7 +3,7 @@ import os
 
 class Ball:
     def __init__(self, x, y, radius, color, speed, screen_width):
-        self.image = pygame.image.load(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "ball.png")).convert_alpha()
+        self.image = pygame.image.load(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "default", "ball.png")).convert_alpha()
         self.rect = self.image.get_rect(center=(x, y))
         self.speed = speed
         self.dx = 1

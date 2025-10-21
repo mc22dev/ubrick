@@ -41,9 +41,9 @@ class Game:
         self.ball = Ball(self.WIDTH // 2, self.HEIGHT // 2, self.BALL_RADIUS, self.WHITE, self.BALL_SPEED, self.WIDTH)
 
         if self.sound_enabled:
-            self.paddle_hit_sound = pygame.mixer.Sound(os.path.join(self.base_path, "assets", "paddle_hit.wav"))
-            self.brick_hit_sound = pygame.mixer.Sound(os.path.join(self.base_path, "assets", "brick_hit.wav"))
-            self.win_sound = pygame.mixer.Sound(os.path.join(self.base_path, "assets", "win.wav"))
+            self.paddle_hit_sound = pygame.mixer.Sound(os.path.join(self.base_path, "assets", "default", "paddle_hit.wav"))
+            self.brick_hit_sound = pygame.mixer.Sound(os.path.join(self.base_path, "assets", "default", "brick_hit.wav"))
+            self.win_sound = pygame.mixer.Sound(os.path.join(self.base_path, "assets", "default", "win.wav"))
             self.background_music = generate_music()
             self.background_music.play(-1)
 

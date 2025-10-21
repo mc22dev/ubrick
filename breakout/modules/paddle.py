@@ -3,7 +3,7 @@ import os
 
 class Paddle:
     def __init__(self, x, y, width, height, color, screen_width):
-        self.image = pygame.image.load(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "paddle.png")).convert_alpha()
+        self.image = pygame.image.load(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "default", "paddle.png")).convert_alpha()
         self.rect = self.image.get_rect(topleft=(x, y))
         self.screen_width = screen_width
 
