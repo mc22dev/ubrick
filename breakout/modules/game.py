@@ -20,6 +20,8 @@ class Game:
         self.WIDTH, self.HEIGHT = 800, 600
         self.GRAY = (128, 128, 128)
         self.WHITE = (255, 255, 255)
+        self.BRICK_GREEN = (0, 255, 0)
+        self.BRICK_RED = (255, 0, 0)
         self.PADDLE_WIDTH = 100
         self.PADDLE_HEIGHT = 20
         self.BALL_RADIUS = 10
@@ -64,10 +66,10 @@ class Game:
             for row_idx, line in enumerate(f):
                 for col_idx, char in enumerate(line.strip()):
                     if char == 'X':
-                        brick = Brick(col_idx * self.BRICK_WIDTH, row_idx * self.BRICK_HEIGHT + 50, self.BRICK_WIDTH, self.BRICK_HEIGHT, self.WHITE, True)
+                        brick = Brick(col_idx * self.BRICK_WIDTH, row_idx * self.BRICK_HEIGHT + 50, self.BRICK_WIDTH, self.BRICK_HEIGHT, self.BRICK_GREEN, True)
                         bricks.append(brick)
                     elif char == 'U':
-                        brick = Brick(col_idx * self.BRICK_WIDTH, row_idx * self.BRICK_HEIGHT + 50, self.BRICK_WIDTH, self.BRICK_HEIGHT, self.GRAY, False)
+                        brick = Brick(col_idx * self.BRICK_WIDTH, row_idx * self.BRICK_HEIGHT + 50, self.BRICK_WIDTH, self.BRICK_HEIGHT, self.BRICK_RED, False)
                         bricks.append(brick)
         return bricks
 
