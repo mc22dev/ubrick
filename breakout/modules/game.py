@@ -185,6 +185,8 @@ class Game:
             if self.magnetic_paddle:
                 self.ball_stuck = True
             else:
+                # Prevent the ball from sinking into the paddle
+                self.ball.rect.bottom = self.paddle.rect.top
                 if self.gravity_enabled:
                     self.ball.vy *= -0.8
                 else:
