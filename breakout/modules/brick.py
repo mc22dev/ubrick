@@ -11,7 +11,7 @@ class Brick(pygame.sprite.Sprite):
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         image_path = os.path.join(base_path, "assets", "default", image_name)
 
-        self.image = pygame.image.load(image_path).convert()
+        self.image = pygame.image.load(image_path).convert_alpha()
         self.rect = self.image.get_rect(topleft=(x,y))
 
         self.visible = True

@@ -24,8 +24,8 @@ if not os.path.exists(ASSETS_DIR):
 # --- Generate Paddle Sprite ---
 # Create a surface with a transparent background
 paddle_surface = pygame.Surface((PADDLE_WIDTH, PADDLE_HEIGHT), pygame.SRCALPHA)
-# Draw the paddle rectangle
-pygame.draw.rect(paddle_surface, WHITE, (0, 0, PADDLE_WIDTH, PADDLE_HEIGHT))
+# Draw the paddle rectangle with rounded corners
+pygame.draw.rect(paddle_surface, WHITE, (0, 0, PADDLE_WIDTH, PADDLE_HEIGHT), border_radius=PADDLE_HEIGHT // 2)
 pygame.image.save(paddle_surface, os.path.join(ASSETS_DIR, "paddle.png"))
 
 # --- Generate Ball Sprite ---
@@ -36,13 +36,17 @@ pygame.draw.circle(ball_surface, WHITE, (BALL_RADIUS, BALL_RADIUS), BALL_RADIUS)
 pygame.image.save(ball_surface, os.path.join(ASSETS_DIR, "ball.png"))
 
 # --- Generate Green Brick Sprite ---
-green_brick_surface = pygame.Surface((BRICK_WIDTH, BRICK_HEIGHT))
-green_brick_surface.fill(GREEN)
+# Create a surface with a transparent background
+green_brick_surface = pygame.Surface((BRICK_WIDTH, BRICK_HEIGHT), pygame.SRCALPHA)
+# Draw the brick with rounded corners
+pygame.draw.rect(green_brick_surface, GREEN, (0, 0, BRICK_WIDTH, BRICK_HEIGHT), border_radius=5)
 pygame.image.save(green_brick_surface, os.path.join(ASSETS_DIR, "brick_green.png"))
 
 # --- Generate Red Brick Sprite ---
-red_brick_surface = pygame.Surface((BRICK_WIDTH, BRICK_HEIGHT))
-red_brick_surface.fill(RED)
+# Create a surface with a transparent background
+red_brick_surface = pygame.Surface((BRICK_WIDTH, BRICK_HEIGHT), pygame.SRCALPHA)
+# Draw the brick with rounded corners
+pygame.draw.rect(red_brick_surface, RED, (0, 0, BRICK_WIDTH, BRICK_HEIGHT), border_radius=5)
 pygame.image.save(red_brick_surface, os.path.join(ASSETS_DIR, "brick_red.png"))
 
 print("Default theme assets generated successfully.")
