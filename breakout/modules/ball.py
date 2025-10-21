@@ -1,10 +1,10 @@
 import pygame
+import os
 
 class Ball:
     def __init__(self, x, y, radius, color, speed, screen_width):
-        self.rect = pygame.Rect(x - radius, y - radius, radius * 2, radius * 2)
-        self.radius = radius
-        self.color = color
+        self.image = pygame.image.load(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "ball.png")).convert_alpha()
+        self.rect = self.image.get_rect(center=(x, y))
         self.speed = speed
         self.dx = 1
         self.dy = -1
@@ -12,7 +12,7 @@ class Ball:
         self.screen_width = screen_width
 
     def draw(self, screen):
-        pygame.draw.circle(screen, self.color, self.rect.center, self.radius)
+        screen.blit(self.image, self.rect)
 
     def move(self, gravity_enabled, gravity):
         if gravity_enabled:
