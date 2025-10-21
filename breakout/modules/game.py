@@ -214,9 +214,6 @@ class Game:
                     self.score += 10
 
                 # Collision logic
-                # To find the side of collision, we check the overlap of the rectangles
-                # And see which side has the minimum overlap
-
                 overlap_left = self.ball.rect.right - brick.rect.left
                 overlap_right = brick.rect.right - self.ball.rect.left
                 overlap_top = self.ball.rect.bottom - brick.rect.top
@@ -226,14 +223,19 @@ class Game:
                 min_overlap_y = min(overlap_top, overlap_bottom)
 
                 if min_overlap_x < min_overlap_y:
-                    self.ball.dx *= -1
-                elif min_overlap_y < min_overlap_x:
-                    if self.gravity_enabled:
-                        self.ball.vy *= -0.5
+                    # Horizontal collision
+                    if overlap_left < overlap_right:
+                        self.ball.rect.right = brick.rect.left
                     else:
-                        self.ball.dy *= -1
-                else: # Corner hit
+                        self.ball.rect.left = brick.rect.right
                     self.ball.dx *= -1
+                else:
+                    # Vertical collision
+                    if overlap_top < overlap_bottom:
+                        self.ball.rect.bottom = brick.rect.top
+                    else:
+                        self.ball.rect.top = brick.rect.bottom
+
                     if self.gravity_enabled:
                         self.ball.vy *= -0.5
                     else:
