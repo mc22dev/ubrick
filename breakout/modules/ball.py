@@ -24,9 +24,15 @@ class Ball:
         self.rect.x += self.speed * self.dx
 
         # Wall collision
-        if self.rect.left < 0 or self.rect.right > self.screen_width:
+        if self.rect.left < 0:
+            self.rect.left = 0
             self.dx *= -1
+        elif self.rect.right > self.screen_width:
+            self.rect.right = self.screen_width
+            self.dx *= -1
+
         if self.rect.top < 0:
+            self.rect.top = 0
             if gravity_enabled:
                 self.vy *= -0.5 # bounce with some energy loss
             else:
