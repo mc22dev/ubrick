@@ -53,11 +53,42 @@ class Game:
 
         # Game state
         self.score = 0
+        self.highscore = 0
+        self._load_highscore()
         self.gravity_enabled = False
         self.magnetic_paddle = False
         self.ball_stuck = False
         self.running = True
         self.game_state = "playing"
+
+    def _load_highscore(self):
+        highscore_file = os.path.join(self.base_path, "highscore.txt")
+        try:
+            with open(highscore_file, 'r') as f:
+                self.highscore = int(f.read())
+        except (FileNotFoundError, ValueError):
+            self.highscore = 0
+
+    def _save_highscore(self):
+        highscore_file = os.path.join(self.base_path, "highscore.txt")
+        with open(highscore_file, 'w') as f:
+            f.write(str(self.highscore))
+
+    def _reset_game(self):
+        self.score = 0
+        self.current_level = 1
+        self.bricks = self.load_level(self.current_level)
+        self.paddle.rect.x = self.WIDTH // 2 - self.PADDLE_WIDTH // 2
+        self.paddle.rect.y = self.HEIGHT - self.PADDLE_HEIGHT - 10
+        self.ball.rect.x = self.WIDTH // 2
+        self.ball.rect.y = self.HEIGHT // 2
+        self.ball.dx = 1
+        self.ball.dy = -1
+        self.ball.vy = 0
+        self.game_state = "playing"
+        self.gravity_enabled = False
+        self.magnetic_paddle = False
+        self.ball_stuck = False
 
     def load_level(self, level_number):
         bricks = []
@@ -90,13 +121,22 @@ class Game:
     def draw_game_over(self):
         self.screen.fill(self.GRAY)
         game_over_text = self.font.render("Game Over", True, self.WHITE)
-        self.screen.blit(game_over_text, (self.WIDTH // 2 - game_over_text.get_width() // 2, self.HEIGHT // 2 - game_over_text.get_height() // 2))
+        score_text = self.font.render(f"Score: {self.score}", True, self.WHITE)
+        highscore_text = self.font.render(f"High Score: {self.highscore}", True, self.WHITE)
+        restart_text = self.font.render("Press any key to play again", True, self.WHITE)
+
+        self.screen.blit(game_over_text, (self.WIDTH // 2 - game_over_text.get_width() // 2, self.HEIGHT // 2 - 100))
+        self.screen.blit(score_text, (self.WIDTH // 2 - score_text.get_width() // 2, self.HEIGHT // 2 - 50))
+        self.screen.blit(highscore_text, (self.WIDTH // 2 - highscore_text.get_width() // 2, self.HEIGHT // 2))
+        self.screen.blit(restart_text, (self.WIDTH // 2 - restart_text.get_width() // 2, self.HEIGHT // 2 + 50))
+
         pygame.display.flip()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
             if event.type == pygame.KEYDOWN:
-                self.running = False
+                self._reset_game()
 
     def draw_you_win(self):
         self.screen.fill(self.GRAY)
@@ -195,6 +235,9 @@ class Game:
 
         # Ball and bottom wall collision
         if self.ball.rect.bottom > self.HEIGHT:
+            if self.score > self.highscore:
+                self.highscore = self.score
+                self._save_highscore()
             self.game_state = "game_over"
 
     def draw(self):
