@@ -57,6 +57,7 @@ class Game:
         self.gravity_enabled = False
         self.magnetic_paddle = False
         self.ball_stuck = False
+        self.ai_enabled = False
         self.running = True
         self.game_state = "playing"
 
@@ -168,13 +169,20 @@ class Game:
                     self.gravity_enabled = not self.gravity_enabled
                 if event.key == pygame.K_m:
                     self.magnetic_paddle = not self.magnetic_paddle
+                if event.key == pygame.K_a:
+                    self.ai_enabled = not self.ai_enabled
             if event.type == pygame.MOUSEBUTTONDOWN and self.ball_stuck:
                 self.ball_stuck = False
 
     def update(self):
         # Paddle movement
-        mouse_x = pygame.mouse.get_pos()[0]
-        self.paddle.move(mouse_x - self.paddle.rect.width // 2)
+        if self.ai_enabled:
+            # AI controls the paddle
+            self.paddle.move(self.ball.rect.centerx - self.paddle.rect.width // 2)
+        else:
+            # Player controls the paddle
+            mouse_x = pygame.mouse.get_pos()[0]
+            self.paddle.move(mouse_x - self.paddle.rect.width // 2)
 
         # Ball movement
         if not self.ball_stuck:
@@ -270,6 +278,10 @@ class Game:
         # Draw magnetic paddle status
         magnetic_text = self.font.render(f"Magnetic: {'On' if self.magnetic_paddle else 'Off'}", True, self.WHITE)
         self.screen.blit(magnetic_text, (self.WIDTH - 150, 40))
+
+        # Draw AI mode status
+        ai_text = self.font.render(f"AI Mode: {'On' if self.ai_enabled else 'Off'}", True, self.WHITE)
+        self.screen.blit(ai_text, (self.WIDTH - 150, 70))
 
         # Draw level
         level_text = self.font.render(f"Level: {self.current_level}", True, self.WHITE)
