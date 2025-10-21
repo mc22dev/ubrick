@@ -264,6 +264,12 @@ class Game:
 
     def draw(self):
         self.screen.fill(self.GRAY)
+
+        # Draw walls
+        pygame.draw.line(self.screen, self.WHITE, (0, 0), (self.WIDTH, 0), 2)
+        pygame.draw.line(self.screen, self.WHITE, (0, 0), (0, self.HEIGHT), 2)
+        pygame.draw.line(self.screen, self.WHITE, (self.WIDTH - 1, 0), (self.WIDTH - 1, self.HEIGHT), 2)
+
         self.paddle.draw(self.screen)
         self.ball.draw(self.screen)
         for brick in self.bricks:
