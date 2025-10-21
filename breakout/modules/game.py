@@ -66,10 +66,10 @@ class Game:
             for row_idx, line in enumerate(f):
                 for col_idx, char in enumerate(line.strip()):
                     if char == 'X':
-                        brick = Brick(col_idx * self.BRICK_WIDTH, row_idx * self.BRICK_HEIGHT + 50, self.BRICK_WIDTH, self.BRICK_HEIGHT, self.BRICK_GREEN, True)
+                        brick = Brick(col_idx * self.BRICK_WIDTH, row_idx * self.BRICK_HEIGHT + 50, breakable=True)
                         bricks.append(brick)
                     elif char == 'U':
-                        brick = Brick(col_idx * self.BRICK_WIDTH, row_idx * self.BRICK_HEIGHT + 50, self.BRICK_WIDTH, self.BRICK_HEIGHT, self.BRICK_RED, False)
+                        brick = Brick(col_idx * self.BRICK_WIDTH, row_idx * self.BRICK_HEIGHT + 50, breakable=False)
                         bricks.append(brick)
         return bricks
 
