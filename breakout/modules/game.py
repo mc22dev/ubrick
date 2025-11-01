@@ -180,23 +180,23 @@ class Game:
         self.screen.blit(title_text, (self.WIDTH // 2 - title_text.get_width() // 2, 50))
 
         # Gravity option
-        gravity_text = self.font.render(f"Gravity: {'On' if self.gravity_enabled else 'Off'}", True, self.WHITE)
+        gravity_text = self.font.render(f"Gravity: {'On' if self.gravity_enabled else 'Off'} (g)", True, self.WHITE)
         self.gravity_rect = self.screen.blit(gravity_text, (self.WIDTH // 2 - gravity_text.get_width() // 2, 150))
 
         # Magnetic paddle option
-        magnetic_text = self.font.render(f"Magnetic Paddle: {'On' if self.magnetic_paddle else 'Off'}", True, self.WHITE)
+        magnetic_text = self.font.render(f"Magnetic Paddle: {'On' if self.magnetic_paddle else 'Off'} (m)", True, self.WHITE)
         self.magnetic_rect = self.screen.blit(magnetic_text, (self.WIDTH // 2 - magnetic_text.get_width() // 2, 200))
 
         # AI mode option
-        ai_text = self.font.render(f"AI Mode: {'On' if self.ai_enabled else 'Off'}", True, self.WHITE)
+        ai_text = self.font.render(f"AI Mode: {'On' if self.ai_enabled else 'Off'} (a)", True, self.WHITE)
         self.ai_rect = self.screen.blit(ai_text, (self.WIDTH // 2 - ai_text.get_width() // 2, 250))
 
         # Music option
-        music_text = self.font.render(f"Music: {'On' if self.music_enabled else 'Off'}", True, self.WHITE)
+        music_text = self.font.render(f"Music: {'On' if self.music_enabled else 'Off'} (u)", True, self.WHITE)
         self.music_rect = self.screen.blit(music_text, (self.WIDTH // 2 - music_text.get_width() // 2, 300))
 
         # Sound effects option
-        sound_text = self.font.render(f"Sound Effects: {'On' if self.sound_effects_enabled else 'Off'}", True, self.WHITE)
+        sound_text = self.font.render(f"Sound Effects: {'On' if self.sound_effects_enabled else 'Off'} (s)", True, self.WHITE)
         self.sound_rect = self.screen.blit(sound_text, (self.WIDTH // 2 - sound_text.get_width() // 2, 350))
 
         pygame.display.flip()
@@ -211,6 +211,21 @@ class Game:
                         self.game_state = "config"
                     elif self.game_state == "config":
                         self.game_state = "playing"
+                elif self.game_state == "config":
+                    if event.key == pygame.K_g:
+                        self.gravity_enabled = not self.gravity_enabled
+                    elif event.key == pygame.K_m:
+                        self.magnetic_paddle = not self.magnetic_paddle
+                    elif event.key == pygame.K_a:
+                        self.ai_enabled = not self.ai_enabled
+                    elif event.key == pygame.K_u:
+                        self.music_enabled = not self.music_enabled
+                        if self.music_enabled:
+                            self.background_music.play(-1)
+                        else:
+                            self.background_music.stop()
+                    elif event.key == pygame.K_s:
+                        self.sound_effects_enabled = not self.sound_effects_enabled
             if self.game_state == "config" and event.type == pygame.MOUSEBUTTONDOWN:
                 if self.gravity_rect and self.gravity_rect.collidepoint(event.pos):
                     self.gravity_enabled = not self.gravity_enabled
