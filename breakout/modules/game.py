@@ -44,7 +44,8 @@ class Game:
             self.brick_hit_sound = pygame.mixer.Sound(os.path.join(self.base_path, "assets", "default", "brick_hit.wav"))
             self.win_sound = pygame.mixer.Sound(os.path.join(self.base_path, "assets", "default", "win.wav"))
             self.background_music = generate_music()
-            self.background_music.play(-1)
+            if self.music_enabled:
+                self.background_music.play(-1)
 
         # Levels
         self.current_level = 1
@@ -65,6 +66,11 @@ class Game:
         self.gravity_rect = None
         self.magnetic_rect = None
         self.ai_rect = None
+        self.music_rect = None
+        self.sound_rect = None
+
+        self.music_enabled = True
+        self.sound_effects_enabled = True
 
     def _load_highscore(self):
         highscore_file = os.path.join(self.base_path, "highscore.txt")
@@ -185,6 +191,14 @@ class Game:
         ai_text = self.font.render(f"AI Mode: {'On' if self.ai_enabled else 'Off'}", True, self.WHITE)
         self.ai_rect = self.screen.blit(ai_text, (self.WIDTH // 2 - ai_text.get_width() // 2, 250))
 
+        # Music option
+        music_text = self.font.render(f"Music: {'On' if self.music_enabled else 'Off'}", True, self.WHITE)
+        self.music_rect = self.screen.blit(music_text, (self.WIDTH // 2 - music_text.get_width() // 2, 300))
+
+        # Sound effects option
+        sound_text = self.font.render(f"Sound Effects: {'On' if self.sound_effects_enabled else 'Off'}", True, self.WHITE)
+        self.sound_rect = self.screen.blit(sound_text, (self.WIDTH // 2 - sound_text.get_width() // 2, 350))
+
         pygame.display.flip()
 
     def handle_events(self):
@@ -204,6 +218,14 @@ class Game:
                     self.magnetic_paddle = not self.magnetic_paddle
                 elif self.ai_rect and self.ai_rect.collidepoint(event.pos):
                     self.ai_enabled = not self.ai_enabled
+                elif self.music_rect and self.music_rect.collidepoint(event.pos):
+                    self.music_enabled = not self.music_enabled
+                    if self.music_enabled:
+                        self.background_music.play(-1)
+                    else:
+                        self.background_music.stop()
+                elif self.sound_rect and self.sound_rect.collidepoint(event.pos):
+                    self.sound_effects_enabled = not self.sound_effects_enabled
             if self.game_state == "playing":
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_g:
@@ -240,7 +262,7 @@ class Game:
                     self.ball.vy *= -0.8
                 else:
                     self.ball.dy *= -1
-                if self.sound_enabled:
+                if self.sound_enabled and self.sound_effects_enabled:
                     self.paddle_hit_sound.play()
 
         if self.ball_stuck:
@@ -280,13 +302,13 @@ class Game:
                     else:
                         self.ball.dy *= -1
 
-                if self.sound_enabled:
+                if self.sound_enabled and self.sound_effects_enabled:
                     self.brick_hit_sound.play()
                 break
 
         # Check for level completion
         if all(not brick.visible for brick in self.bricks if brick.breakable):
-            if self.sound_enabled:
+            if self.sound_enabled and self.sound_effects_enabled:
                 self.win_sound.play()
             self.current_level += 1
             if self.current_level > 50:
