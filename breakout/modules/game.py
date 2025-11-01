@@ -397,17 +397,6 @@ class Game:
         score_text = self.font.render(f"Score: {self.score}", True, self.WHITE)
         self.screen.blit(score_text, (10, 10))
 
-        # Draw gravity status
-        gravity_text = self.font.render(f"Gravity: {'On' if self.gravity_enabled else 'Off'}", True, self.WHITE)
-        self.screen.blit(gravity_text, (self.WIDTH - 150, 10))
-
-        # Draw magnetic paddle status
-        magnetic_text = self.font.render(f"Magnetic: {'On' if self.magnetic_paddle else 'Off'}", True, self.WHITE)
-        self.screen.blit(magnetic_text, (self.WIDTH - 150, 40))
-
-        # Draw AI mode status
-        ai_text = self.font.render(f"AI Mode: {'On' if self.ai_enabled else 'Off'}", True, self.WHITE)
-        self.screen.blit(ai_text, (self.WIDTH - 150, 70))
 
         # Draw level
         level_text = self.font.render(f"Level: {self.current_level}", True, self.WHITE)
