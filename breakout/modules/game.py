@@ -39,6 +39,9 @@ class Game:
         self.paddle = Paddle(self.WIDTH // 2 - self.PADDLE_WIDTH // 2, self.HEIGHT - self.PADDLE_HEIGHT - 10, self.PADDLE_WIDTH, self.PADDLE_HEIGHT, self.WHITE, self.WIDTH)
         self.ball = Ball(self.WIDTH // 2, self.HEIGHT // 2, self.BALL_RADIUS, self.WHITE, self.BALL_SPEED, self.WIDTH)
 
+        self.music_enabled = True
+        self.sound_effects_enabled = True
+
         if self.sound_enabled:
             self.paddle_hit_sound = pygame.mixer.Sound(os.path.join(self.base_path, "assets", "default", "paddle_hit.wav"))
             self.brick_hit_sound = pygame.mixer.Sound(os.path.join(self.base_path, "assets", "default", "brick_hit.wav"))
@@ -68,9 +71,6 @@ class Game:
         self.ai_rect = None
         self.music_rect = None
         self.sound_rect = None
-
-        self.music_enabled = True
-        self.sound_effects_enabled = True
 
     def _load_highscore(self):
         highscore_file = os.path.join(self.base_path, "highscore.txt")
