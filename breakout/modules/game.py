@@ -329,11 +329,12 @@ class Game:
         # Ball and brick collision
         for brick in self.bricks:
             if brick.visible and self.ball.rect.colliderect(brick.rect):
+                # Collision detected
                 if brick.breakable:
                     brick.visible = False
                     self.score += 10
 
-                # Collision logic
+                # Position correction logic
                 overlap_left = self.ball.rect.right - brick.rect.left
                 overlap_right = brick.rect.right - self.ball.rect.left
                 overlap_top = self.ball.rect.bottom - brick.rect.top
@@ -343,8 +344,18 @@ class Game:
                 min_overlap_y = min(overlap_top, overlap_bottom)
 
                 if min_overlap_x < min_overlap_y:
+                    # Horizontal collision
+                    if overlap_left < overlap_right:
+                        self.ball.rect.right = brick.rect.left
+                    else:
+                        self.ball.rect.left = brick.rect.right
                     self.ball.vx *= -1
                 else:
+                    # Vertical collision
+                    if overlap_top < overlap_bottom:
+                        self.ball.rect.bottom = brick.rect.top
+                    else:
+                        self.ball.rect.top = brick.rect.bottom
                     self.ball.vy *= -1
 
                 if self.sound_enabled and self.sound_effects_enabled:
