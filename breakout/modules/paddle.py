@@ -8,12 +8,16 @@ class Paddle:
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.last_x = x
+        self.prev_x = x
+        self.prev_y = y
         self.velocity = 0
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
 
     def move(self, x, y):
+        self.prev_x = self.rect.x
+        self.prev_y = self.rect.y
         self.velocity = x - self.last_x
         self.last_x = x
         self.rect.x = x
