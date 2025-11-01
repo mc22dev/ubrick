@@ -139,6 +139,9 @@ class Game:
             elif self.game_state == "config":
                 self.handle_events()
                 self.draw_config_screen()
+            elif self.game_state == "paused":
+                self.handle_events()
+                self.draw_paused_screen()
 
         pygame.quit()
         sys.exit()
@@ -201,6 +204,12 @@ class Game:
 
         pygame.display.flip()
 
+    def draw_paused_screen(self):
+        self.screen.fill(self.GRAY)
+        paused_text = self.font.render("Paused", True, self.WHITE)
+        self.screen.blit(paused_text, (self.WIDTH // 2 - paused_text.get_width() // 2, self.HEIGHT // 2 - paused_text.get_height() // 2))
+        pygame.display.flip()
+
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -210,6 +219,11 @@ class Game:
                     if self.game_state == "playing":
                         self.game_state = "config"
                     elif self.game_state == "config":
+                        self.game_state = "playing"
+                if event.key == pygame.K_p:
+                    if self.game_state == "playing":
+                        self.game_state = "paused"
+                    elif self.game_state == "paused":
                         self.game_state = "playing"
                 elif self.game_state == "config":
                     if event.key == pygame.K_g:
