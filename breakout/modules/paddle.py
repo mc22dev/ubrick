@@ -20,21 +20,23 @@ class Paddle:
         self.prev_y = self.rect.y
         self.velocity = x - self.last_x
         self.last_x = x
-        self.rect.x = x
-        self.rect.y = y
 
-        # Brick collision
+        # Move horizontally
+        self.rect.x = x
         for brick in bricks:
             if brick.visible and self.rect.colliderect(brick.rect):
-                # Horizontal collision
-                if self.rect.right > brick.rect.left and self.prev_x <= brick.rect.left:
+                if x > self.prev_x:  # Moving right
                     self.rect.right = brick.rect.left
-                elif self.rect.left < brick.rect.right and self.prev_x >= brick.rect.right:
+                elif x < self.prev_x:  # Moving left
                     self.rect.left = brick.rect.right
-                # Vertical collision
-                if self.rect.bottom > brick.rect.top and self.prev_y <= brick.rect.top:
+
+        # Move vertically
+        self.rect.y = y
+        for brick in bricks:
+            if brick.visible and self.rect.colliderect(brick.rect):
+                if y > self.prev_y:  # Moving down
                     self.rect.bottom = brick.rect.top
-                elif self.rect.top < brick.rect.bottom and self.prev_y >= brick.rect.bottom:
+                elif y < self.prev_y:  # Moving up
                     self.rect.top = brick.rect.bottom
 
         # Keep the paddle on the screen
