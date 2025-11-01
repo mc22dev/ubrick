@@ -72,6 +72,8 @@ class Game:
         self.music_rect = None
         self.sound_rect = None
         self.quit_rect = None
+        self.show_fps = False
+        self.fps_rect = None
 
     def _load_highscore(self):
         highscore_file = os.path.join(self.base_path, "highscore.txt")
@@ -209,9 +211,13 @@ class Game:
         sound_text = self.font.render(f"Sound Effects: {'On' if self.sound_effects_enabled else 'Off'} (s)", True, self.WHITE)
         self.sound_rect = self.screen.blit(sound_text, (self.WIDTH // 2 - sound_text.get_width() // 2, 350))
 
+        # Show FPS option
+        fps_text = self.font.render(f"Show FPS: {'On' if self.show_fps else 'Off'} (f)", True, self.WHITE)
+        self.fps_rect = self.screen.blit(fps_text, (self.WIDTH // 2 - fps_text.get_width() // 2, 400))
+
         # Quit option
         quit_text = self.font.render("Quit (q)", True, self.WHITE)
-        self.quit_rect = self.screen.blit(quit_text, (self.WIDTH // 2 - quit_text.get_width() // 2, 400))
+        self.quit_rect = self.screen.blit(quit_text, (self.WIDTH // 2 - quit_text.get_width() // 2, 450))
 
         pygame.display.flip()
 
@@ -266,11 +272,15 @@ class Game:
                             self.background_music.stop()
                     elif event.key == pygame.K_s:
                         self.sound_effects_enabled = not self.sound_effects_enabled
+                    elif event.key == pygame.K_f:
+                        self.show_fps = not self.show_fps
                     elif event.key == pygame.K_q:
                         self.running = False
             if self.game_state == "config" and event.type == pygame.MOUSEBUTTONDOWN:
                 if self.gravity_rect and self.gravity_rect.collidepoint(event.pos):
                     self.gravity_enabled = not self.gravity_enabled
+                elif self.fps_rect and self.fps_rect.collidepoint(event.pos):
+                    self.show_fps = not self.show_fps
                 elif self.magnetic_rect and self.magnetic_rect.collidepoint(event.pos):
                     self.magnetic_paddle = not self.magnetic_paddle
                     if not self.magnetic_paddle:
@@ -401,6 +411,11 @@ class Game:
         # Draw level
         level_text = self.font.render(f"Level: {self.current_level}", True, self.WHITE)
         self.screen.blit(level_text, (self.WIDTH // 2 - 50, 10))
+
+        if self.show_fps:
+            fps = self.clock.get_fps()
+            fps_text = self.font.render(f"FPS: {fps:.2f}", True, self.WHITE)
+            self.screen.blit(fps_text, (10, self.HEIGHT - 40))
 
         pygame.display.flip()
         self.clock.tick(60)
