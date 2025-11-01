@@ -118,6 +118,7 @@ class Game:
         offset_x = (self.WIDTH - grid_width) // 2
         offset_y = 50
 
+        self.brick_zone_bottom = 0
         for row_idx, line in enumerate(level_data):
             for col_idx, char in enumerate(line):
                 if char in 'XU':
@@ -126,6 +127,8 @@ class Game:
                     breakable = (char == 'X')
                     brick = Brick(brick_x, brick_y, breakable=breakable)
                     bricks.append(brick)
+                    if brick_y + self.BRICK_HEIGHT > self.brick_zone_bottom:
+                        self.brick_zone_bottom = brick_y + self.BRICK_HEIGHT
         return bricks
 
     def run(self):
@@ -313,6 +316,8 @@ class Game:
         if self.ai_enabled:
             # AI controls the paddle
             target_y = self.ball.rect.centery - self.paddle.rect.height // 2
+            if target_y < self.brick_zone_bottom:
+                target_y = self.brick_zone_bottom
             self.paddle.move(self.ball.rect.centerx - self.paddle.rect.width // 2, target_y, self.bricks)
         else:
             # Player controls the paddle

@@ -7,7 +7,6 @@ class Paddle:
         self.rect = self.image.get_rect(topleft=(x, y))
         self.screen_width = screen_width
         self.screen_height = screen_height
-        self.last_x = x
         self.prev_x = x
         self.prev_y = y
         self.velocity = 0
