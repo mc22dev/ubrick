@@ -128,6 +128,10 @@ class Game:
 
     def run(self):
         while self.running:
+            is_playing = self.game_state == "playing"
+            pygame.mouse.set_visible(not is_playing)
+            pygame.event.set_grab(is_playing)
+
             if self.game_state == "welcome":
                 self.handle_events()
                 self.draw_welcome_screen()
@@ -299,8 +303,10 @@ class Game:
             self.paddle.move(self.ball.rect.centerx - self.paddle.rect.width // 2, target_y, self.bricks)
         else:
             # Player controls the paddle
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            self.paddle.move(mouse_x - self.paddle.rect.width // 2, mouse_y - self.paddle.rect.height // 2, self.bricks)
+            dx, dy = pygame.mouse.get_rel()
+            new_x = self.paddle.rect.x + dx
+            new_y = self.paddle.rect.y + dy
+            self.paddle.move(new_x, new_y, self.bricks)
 
         # Ball movement
         if not self.ball_stuck:
