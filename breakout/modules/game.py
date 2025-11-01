@@ -63,7 +63,7 @@ class Game:
         self.ball_stuck = False
         self.ai_enabled = False
         self.running = True
-        self.game_state = "playing"
+        self.game_state = "welcome"
 
         # Config screen button rects
         self.gravity_rect = None
@@ -128,7 +128,10 @@ class Game:
 
     def run(self):
         while self.running:
-            if self.game_state == "playing":
+            if self.game_state == "welcome":
+                self.handle_events()
+                self.draw_welcome_screen()
+            elif self.game_state == "playing":
                 self.handle_events()
                 self.update()
                 self.draw()
@@ -210,12 +213,22 @@ class Game:
         self.screen.blit(paused_text, (self.WIDTH // 2 - paused_text.get_width() // 2, self.HEIGHT // 2 - paused_text.get_height() // 2))
         pygame.display.flip()
 
+    def draw_welcome_screen(self):
+        self.screen.fill(self.GRAY)
+        title_text = self.font.render("Bolo Breakout", True, self.WHITE)
+        prompt_text = self.font.render("Press any key to start", True, self.WHITE)
+        self.screen.blit(title_text, (self.WIDTH // 2 - title_text.get_width() // 2, self.HEIGHT // 2 - 50))
+        self.screen.blit(prompt_text, (self.WIDTH // 2 - prompt_text.get_width() // 2, self.HEIGHT // 2))
+        pygame.display.flip()
+
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_c:
+                if self.game_state == "welcome":
+                    self.game_state = "playing"
+                elif event.key == pygame.K_c:
                     if self.game_state == "playing":
                         self.game_state = "config"
                     elif self.game_state == "config":
