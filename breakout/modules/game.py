@@ -250,6 +250,8 @@ class Game:
                         self.gravity_enabled = not self.gravity_enabled
                     elif event.key == pygame.K_m:
                         self.magnetic_paddle = not self.magnetic_paddle
+                        if not self.magnetic_paddle:
+                            self.ball_stuck = False
                     elif event.key == pygame.K_a:
                         self.ai_enabled = not self.ai_enabled
                     elif event.key == pygame.K_u:
@@ -267,6 +269,8 @@ class Game:
                     self.gravity_enabled = not self.gravity_enabled
                 elif self.magnetic_rect and self.magnetic_rect.collidepoint(event.pos):
                     self.magnetic_paddle = not self.magnetic_paddle
+                    if not self.magnetic_paddle:
+                        self.ball_stuck = False
                 elif self.ai_rect and self.ai_rect.collidepoint(event.pos):
                     self.ai_enabled = not self.ai_enabled
                 elif self.music_rect and self.music_rect.collidepoint(event.pos):
