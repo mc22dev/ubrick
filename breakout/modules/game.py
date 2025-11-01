@@ -170,7 +170,7 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                 self._reset_game()
 
     def draw_you_win(self):
@@ -233,6 +233,9 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.game_state == "welcome":
+                    self.game_state = "playing"
             if event.type == pygame.KEYDOWN:
                 if self.game_state == "welcome":
                     self.game_state = "playing"
