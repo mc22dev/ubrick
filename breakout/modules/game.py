@@ -94,9 +94,8 @@ class Game:
         self.paddle.rect.y = self.HEIGHT - self.PADDLE_HEIGHT - 10
         self.ball.rect.x = self.WIDTH // 2
         self.ball.rect.y = self.HEIGHT // 2
-        self.ball.dx = 1
-        self.ball.dy = -1
-        self.ball.vy = 0
+        self.ball.vx = self.BALL_SPEED
+        self.ball.vy = -self.BALL_SPEED
         self.game_state = "playing"
         self.gravity_enabled = False
         self.magnetic_paddle = False
@@ -307,12 +306,10 @@ class Game:
             if self.magnetic_paddle:
                 self.ball_stuck = True
             else:
-                # Prevent the ball from sinking into the paddle
                 self.ball.rect.bottom = self.paddle.rect.top
-                if self.gravity_enabled:
-                    self.ball.vy *= -0.8
-                else:
-                    self.ball.dy *= -1
+                self.ball.vy *= -1
+                # Transfer paddle velocity to the ball
+                self.ball.vx += self.paddle.velocity * 0.2
                 if self.sound_enabled and self.sound_effects_enabled:
                     self.paddle_hit_sound.play()
 
@@ -328,9 +325,6 @@ class Game:
                     self.score += 10
 
                 # Collision logic
-                # To find the side of collision, we check the overlap of the rectangles
-                # And see which side has the minimum overlap
-
                 overlap_left = self.ball.rect.right - brick.rect.left
                 overlap_right = brick.rect.right - self.ball.rect.left
                 overlap_top = self.ball.rect.bottom - brick.rect.top
@@ -340,18 +334,9 @@ class Game:
                 min_overlap_y = min(overlap_top, overlap_bottom)
 
                 if min_overlap_x < min_overlap_y:
-                    self.ball.dx *= -1
-                elif min_overlap_y < min_overlap_x:
-                    if self.gravity_enabled:
-                        self.ball.vy *= -0.5
-                    else:
-                        self.ball.dy *= -1
-                else: # Corner hit
-                    self.ball.dx *= -1
-                    if self.gravity_enabled:
-                        self.ball.vy *= -0.5
-                    else:
-                        self.ball.dy *= -1
+                    self.ball.vx *= -1
+                else:
+                    self.ball.vy *= -1
 
                 if self.sound_enabled and self.sound_effects_enabled:
                     self.brick_hit_sound.play()
