@@ -64,6 +64,8 @@ class Game:
         self.ai_enabled = False
         self.running = True
         self.game_state = "welcome"
+        self.selected_level = 1
+        self.max_level = self._get_max_level()
 
         # Config screen button rects
         self.gravity_rect = None
@@ -74,6 +76,11 @@ class Game:
         self.quit_rect = None
         self.show_fps = False
         self.fps_rect = None
+
+    def _get_max_level(self):
+        levels_path = os.path.join(self.base_path, "levels")
+        level_files = [f for f in os.listdir(levels_path) if f.startswith("level_") and f.endswith(".txt")]
+        return len(level_files)
 
     def _load_highscore(self):
         highscore_file = os.path.join(self.base_path, "highscore.txt")
@@ -90,15 +97,13 @@ class Game:
 
     def _reset_game(self):
         self.score = 0
-        self.current_level = 1
-        self.bricks = self.load_level(self.current_level)
         self.paddle.rect.x = self.WIDTH // 2 - self.PADDLE_WIDTH // 2
         self.paddle.rect.y = self.HEIGHT - self.PADDLE_HEIGHT - 10
         self.ball.rect.x = self.WIDTH // 2
         self.ball.rect.y = self.HEIGHT // 2
         self.ball.vx = self.BALL_SPEED
         self.ball.vy = -self.BALL_SPEED
-        self.game_state = "playing"
+        self.game_state = "welcome"
         self.gravity_enabled = False
         self.magnetic_paddle = False
         self.ball_stuck = False
@@ -233,9 +238,13 @@ class Game:
     def draw_welcome_screen(self):
         self.screen.fill(self.GRAY)
         title_text = self.font.render("Bolo Breakout", True, self.WHITE)
+        level_text = self.font.render(f"Level: {self.selected_level}/{self.max_level}", True, self.WHITE)
+        controls_text = self.font.render("Use left/right arrows to change level", True, self.WHITE)
         prompt_text = self.font.render("Press any key to start", True, self.WHITE)
-        self.screen.blit(title_text, (self.WIDTH // 2 - title_text.get_width() // 2, self.HEIGHT // 2 - 50))
-        self.screen.blit(prompt_text, (self.WIDTH // 2 - prompt_text.get_width() // 2, self.HEIGHT // 2))
+        self.screen.blit(title_text, (self.WIDTH // 2 - title_text.get_width() // 2, self.HEIGHT // 2 - 100))
+        self.screen.blit(level_text, (self.WIDTH // 2 - level_text.get_width() // 2, self.HEIGHT // 2 - 50))
+        self.screen.blit(controls_text, (self.WIDTH // 2 - controls_text.get_width() // 2, self.HEIGHT // 2))
+        self.screen.blit(prompt_text, (self.WIDTH // 2 - prompt_text.get_width() // 2, self.HEIGHT // 2 + 50))
         pygame.display.flip()
 
     def handle_events(self):
@@ -244,10 +253,19 @@ class Game:
                 self.running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.game_state == "welcome":
+                    self.current_level = self.selected_level
+                    self.bricks = self.load_level(self.current_level)
                     self.game_state = "playing"
             if event.type == pygame.KEYDOWN:
                 if self.game_state == "welcome":
-                    self.game_state = "playing"
+                    if event.key == pygame.K_LEFT:
+                        self.selected_level = max(1, self.selected_level - 1)
+                    elif event.key == pygame.K_RIGHT:
+                        self.selected_level = min(self.max_level, self.selected_level + 1)
+                    else:
+                        self.current_level = self.selected_level
+                        self.bricks = self.load_level(self.current_level)
+                        self.game_state = "playing"
                 elif event.key == pygame.K_c:
                     if self.game_state == "playing":
                         self.game_state = "config"
