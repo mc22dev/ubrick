@@ -16,27 +16,28 @@ class Paddle:
         screen.blit(self.image, self.rect)
 
     def move(self, x, y, bricks):
-        self.prev_x = self.rect.x
-        self.prev_y = self.rect.y
+        # Update velocity and previous position trackers
         self.velocity = x - self.last_x
         self.last_x = x
+        self.prev_x = self.rect.x
+        self.prev_y = self.rect.y
 
         # Move horizontally
         self.rect.x = x
         for brick in bricks:
             if brick.visible and self.rect.colliderect(brick.rect):
-                if x > self.prev_x:  # Moving right
+                if (x - self.prev_x) > 0:  # Moving right
                     self.rect.right = brick.rect.left
-                elif x < self.prev_x:  # Moving left
+                elif (x - self.prev_x) < 0:  # Moving left
                     self.rect.left = brick.rect.right
 
         # Move vertically
         self.rect.y = y
         for brick in bricks:
             if brick.visible and self.rect.colliderect(brick.rect):
-                if y > self.prev_y:  # Moving down
+                if (y - self.prev_y) > 0:  # Moving down
                     self.rect.bottom = brick.rect.top
-                elif y < self.prev_y:  # Moving up
+                elif (y - self.prev_y) < 0:  # Moving up
                     self.rect.top = brick.rect.bottom
 
         # Keep the paddle on the screen
