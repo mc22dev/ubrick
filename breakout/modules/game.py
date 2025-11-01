@@ -71,6 +71,7 @@ class Game:
         self.ai_rect = None
         self.music_rect = None
         self.sound_rect = None
+        self.quit_rect = None
 
     def _load_highscore(self):
         highscore_file = os.path.join(self.base_path, "highscore.txt")
@@ -205,6 +206,10 @@ class Game:
         sound_text = self.font.render(f"Sound Effects: {'On' if self.sound_effects_enabled else 'Off'} (s)", True, self.WHITE)
         self.sound_rect = self.screen.blit(sound_text, (self.WIDTH // 2 - sound_text.get_width() // 2, 350))
 
+        # Quit option
+        quit_text = self.font.render("Quit (q)", True, self.WHITE)
+        self.quit_rect = self.screen.blit(quit_text, (self.WIDTH // 2 - quit_text.get_width() // 2, 400))
+
         pygame.display.flip()
 
     def draw_paused_screen(self):
@@ -253,6 +258,8 @@ class Game:
                             self.background_music.stop()
                     elif event.key == pygame.K_s:
                         self.sound_effects_enabled = not self.sound_effects_enabled
+                    elif event.key == pygame.K_q:
+                        self.running = False
             if self.game_state == "config" and event.type == pygame.MOUSEBUTTONDOWN:
                 if self.gravity_rect and self.gravity_rect.collidepoint(event.pos):
                     self.gravity_enabled = not self.gravity_enabled
@@ -268,6 +275,8 @@ class Game:
                         self.background_music.stop()
                 elif self.sound_rect and self.sound_rect.collidepoint(event.pos):
                     self.sound_effects_enabled = not self.sound_effects_enabled
+                elif self.quit_rect and self.quit_rect.collidepoint(event.pos):
+                    self.running = False
             if self.game_state == "playing":
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_g:
