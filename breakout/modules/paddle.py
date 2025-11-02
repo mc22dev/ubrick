@@ -3,7 +3,7 @@ import os
 import math
 
 class Paddle:
-    SPEED = 15
+    SPEED = 25
 
     def __init__(self, x, y, width, height, color, screen_width, screen_height):
         self.image = pygame.image.load(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "default", "paddle.png")).convert_alpha()
