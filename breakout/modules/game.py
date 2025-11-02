@@ -330,19 +330,20 @@ class Game:
                     self.ball_stuck = False
 
     def update(self):
-        # Paddle movement
+        # Set paddle target based on AI or player input
         if self.ai_enabled:
             # AI controls the paddle
             target_y = self.ball.rect.centery - self.paddle.rect.height // 2
             if target_y < self.brick_zone_bottom:
                 target_y = self.brick_zone_bottom
-            self.paddle.move(self.ball.rect.centerx - self.paddle.rect.width // 2, target_y, self.bricks)
+            self.paddle.move(self.ball.rect.centerx - self.paddle.rect.width // 2, target_y)
         else:
             # Player controls the paddle
-            dx, dy = pygame.mouse.get_rel()
-            new_x = self.paddle.rect.x + dx
-            new_y = self.paddle.rect.y + dy
-            self.paddle.move(new_x, new_y, self.bricks)
+            mouse_pos = pygame.mouse.get_pos()
+            self.paddle.move(mouse_pos[0] - self.paddle.rect.width // 2, mouse_pos[1] - self.paddle.rect.height // 2)
+
+        # Update paddle position
+        self.paddle.update(self.bricks)
 
         # Ball movement
         if not self.ball_stuck:

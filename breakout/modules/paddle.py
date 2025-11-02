@@ -1,7 +1,10 @@
 import pygame
 import os
+import math
 
 class Paddle:
+    SPEED = 15
+
     def __init__(self, x, y, width, height, color, screen_width, screen_height):
         self.image = pygame.image.load(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "default", "paddle.png")).convert_alpha()
         self.rect = self.image.get_rect(topleft=(x, y))
@@ -10,33 +13,49 @@ class Paddle:
         self.prev_x = x
         self.prev_y = y
         self.velocity = 0
+        self.target_x = x
+        self.target_y = y
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
 
-    def move(self, x, y, bricks):
+    def move(self, x, y):
+        self.target_x = x
+        self.target_y = y
+
+    def update(self, bricks):
         # Update velocity and previous position trackers
-        self.velocity = x - self.rect.x
+        self.velocity = self.rect.x - self.prev_x
         self.prev_x = self.rect.x
         self.prev_y = self.rect.y
 
-        # Move horizontally
-        self.rect.x = x
-        colliding_bricks = [brick for brick in bricks if brick.visible and self.rect.colliderect(brick.rect)]
-        for brick in colliding_bricks:
-            if (x - self.prev_x) > 0:  # Moving right
-                self.rect.right = brick.rect.left
-            elif (x - self.prev_x) < 0:  # Moving left
-                self.rect.left = brick.rect.right
+        # Calculate direction vector
+        dx = self.target_x - self.rect.x
+        dy = self.target_y - self.rect.y
+        distance = math.sqrt(dx ** 2 + dy ** 2)
 
-        # Move vertically
-        self.rect.y = y
-        colliding_bricks = [brick for brick in bricks if brick.visible and self.rect.colliderect(brick.rect)]
-        for brick in colliding_bricks:
-            if (y - self.prev_y) > 0:  # Moving down
-                self.rect.bottom = brick.rect.top
-            elif (y - self.prev_y) < 0:  # Moving up
-                self.rect.top = brick.rect.bottom
+        # Move paddle towards target
+        if distance > 1:
+            step_x = (dx / distance) * self.SPEED
+            step_y = (dy / distance) * self.SPEED
+
+            # Move horizontally
+            self.rect.x += step_x
+            colliding_bricks = [brick for brick in bricks if brick.visible and self.rect.colliderect(brick.rect)]
+            for brick in colliding_bricks:
+                if (self.rect.x - self.prev_x) > 0:  # Moving right
+                    self.rect.right = brick.rect.left
+                elif (self.rect.x - self.prev_x) < 0:  # Moving left
+                    self.rect.left = brick.rect.right
+
+            # Move vertically
+            self.rect.y += step_y
+            colliding_bricks = [brick for brick in bricks if brick.visible and self.rect.colliderect(brick.rect)]
+            for brick in colliding_bricks:
+                if (self.rect.y - self.prev_y) > 0:  # Moving down
+                    self.rect.bottom = brick.rect.top
+                elif (self.rect.y - self.prev_y) < 0:  # Moving up
+                    self.rect.top = brick.rect.bottom
 
         # Keep the paddle on the screen
         if self.rect.left < 0:
