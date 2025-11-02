@@ -38,8 +38,9 @@ class Paddle:
 
         # Move paddle towards target
         if distance > 1:
-            step_x = (dx / distance) * self.SPEED
-            step_y = (dy / distance) * self.SPEED
+            move_dist = min(self.SPEED, distance)
+            step_x = (dx / distance) * move_dist
+            step_y = (dy / distance) * move_dist
 
             # Move horizontally
             self.x += step_x
