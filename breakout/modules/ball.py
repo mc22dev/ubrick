@@ -1,8 +1,9 @@
 import pygame
 import os
 
-class Ball:
+class Ball(pygame.sprite.Sprite):
     def __init__(self, x, y, radius, color, speed, screen_width):
+        super().__init__()
         self.image = pygame.image.load(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "default", "ball.png")).convert_alpha()
         self.rect = self.image.get_rect(center=(x, y))
         self.vx = speed

@@ -39,6 +39,9 @@ class Game:
         self.paddle = Paddle(self.WIDTH // 2 - self.PADDLE_WIDTH // 2, self.HEIGHT - self.PADDLE_HEIGHT - 10, self.PADDLE_WIDTH, self.PADDLE_HEIGHT, self.WHITE, self.WIDTH, self.HEIGHT)
         self.ball = Ball(self.WIDTH // 2, self.HEIGHT // 2, self.BALL_RADIUS, self.WHITE, self.BALL_SPEED, self.WIDTH)
 
+        self.all_sprites = pygame.sprite.RenderUpdates()
+        self.all_sprites.add(self.paddle, self.ball)
+
         self.music_enabled = True
         self.sound_effects_enabled = True
 
@@ -132,6 +135,7 @@ class Game:
                     breakable = (char == 'X')
                     brick = Brick(brick_x, brick_y, breakable=breakable)
                     bricks.append(brick)
+                    self.all_sprites.add(brick)
                     if brick_y + self.BRICK_HEIGHT > self.brick_zone_bottom:
                         self.brick_zone_bottom = brick_y + self.BRICK_HEIGHT
         return bricks
@@ -424,10 +428,8 @@ class Game:
     def draw(self):
         self.screen.fill(self.GRAY)
 
-        self.paddle.draw(self.screen)
-        self.ball.draw(self.screen)
-        for brick in self.bricks:
-            brick.draw(self.screen)
+        # Optimized drawing
+        dirty_rects = self.all_sprites.draw(self.screen)
 
         # Draw score
         score_text = self.font.render(f"Score: {self.score}", True, self.WHITE)
@@ -443,5 +445,5 @@ class Game:
             fps_text = self.font.render(f"FPS: {fps:.2f}", True, self.WHITE)
             self.screen.blit(fps_text, (10, self.HEIGHT - 40))
 
-        pygame.display.flip()
+        pygame.display.update(dirty_rects)
         self.clock.tick(60)
