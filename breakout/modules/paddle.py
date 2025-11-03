@@ -46,7 +46,7 @@ class Paddle(pygame.sprite.Sprite):
             # Move horizontally
             self.x += step_x
             self.rect.x = int(round(self.x))
-            colliding_bricks = [brick for brick in bricks if brick.visible and self.rect.colliderect(brick.rect)]
+            colliding_bricks = [brick for brick in bricks if self.rect.colliderect(brick.rect)]
             for brick in colliding_bricks:
                 if (self.rect.x - self.prev_x) > 0:  # Moving right
                     self.rect.right = brick.rect.left
@@ -57,7 +57,7 @@ class Paddle(pygame.sprite.Sprite):
             # Move vertically
             self.y += step_y
             self.rect.y = int(round(self.y))
-            colliding_bricks = [brick for brick in bricks if brick.visible and self.rect.colliderect(brick.rect)]
+            colliding_bricks = [brick for brick in bricks if self.rect.colliderect(brick.rect)]
             for brick in colliding_bricks:
                 if (self.rect.y - self.prev_y) > 0:  # Moving down
                     self.rect.bottom = brick.rect.top

@@ -13,9 +13,3 @@ class Brick(pygame.sprite.Sprite):
 
         self.image = pygame.image.load(image_path).convert_alpha()
         self.rect = self.image.get_rect(topleft=(x,y))
-
-        self.visible = True
-
-    def draw(self, screen):
-        if self.visible:
-            screen.blit(self.image, self.rect)

@@ -40,6 +40,7 @@ class Game:
         self.ball = Ball(self.WIDTH // 2, self.HEIGHT // 2, self.BALL_RADIUS, self.WHITE, self.BALL_SPEED, self.WIDTH)
 
         self.all_sprites = pygame.sprite.RenderUpdates()
+        self.bricks_group = pygame.sprite.Group()
         self.all_sprites.add(self.paddle, self.ball)
 
         self.music_enabled = True
@@ -55,7 +56,7 @@ class Game:
 
         # Levels
         self.current_level = 1
-        self.bricks = self.load_level(self.current_level)
+        self.load_level(self.current_level)
 
         # Game state
         self.score = 0
@@ -112,7 +113,7 @@ class Game:
         self.ball_stuck = False
 
     def load_level(self, level_number):
-        bricks = []
+        self.bricks_group.empty()
         level_file = os.path.join(self.base_path, "levels", f"level_{level_number}.txt")
         with open(level_file, 'r') as f:
             level_data = [line.strip() for line in f]
@@ -134,11 +135,10 @@ class Game:
                     brick_y = offset_y + row_idx * (self.BRICK_HEIGHT + self.BRICK_SPACING)
                     breakable = (char == 'X')
                     brick = Brick(brick_x, brick_y, breakable=breakable)
-                    bricks.append(brick)
                     self.all_sprites.add(brick)
+                    self.bricks_group.add(brick)
                     if brick_y + self.BRICK_HEIGHT > self.brick_zone_bottom:
                         self.brick_zone_bottom = brick_y + self.BRICK_HEIGHT
-        return bricks
 
     def run(self):
         while self.running:
@@ -349,7 +349,7 @@ class Game:
             self.paddle.move(new_target_x, new_target_y)
 
         # Update paddle position
-        self.paddle.update(self.bricks)
+        self.paddle.update(self.bricks_group)
 
         # Ball movement
         if not self.ball_stuck:
@@ -373,14 +373,15 @@ class Game:
             self.ball.rect.y = self.paddle.rect.y - self.ball.rect.height
 
         # Ball and brick collision
-        for brick in self.bricks:
-            if brick.visible and self.ball.rect.colliderect(brick.rect):
-                # Collision detected
-                if brick.breakable:
-                    brick.visible = False
-                    self.score += 10
-
-                # Position correction logic
+        collided_brick = pygame.sprite.spritecollideany(self.ball, self.bricks_group)
+        if collided_brick:
+            brick = collided_brick
+            # Collision detected
+            if brick.breakable:
+                brick.kill()
+                self.score += 10
+            else:
+                # Position correction logic for unbreakable bricks
                 overlap_left = self.ball.rect.right - brick.rect.left
                 overlap_right = brick.rect.right - self.ball.rect.left
                 overlap_top = self.ball.rect.bottom - brick.rect.top
@@ -406,17 +407,16 @@ class Game:
 
                 if self.sound_enabled and self.sound_effects_enabled:
                     self.brick_hit_sound.play()
-                break
 
         # Check for level completion
-        if all(not brick.visible for brick in self.bricks if brick.breakable):
+        if not any(brick.breakable for brick in self.bricks_group):
             if self.sound_enabled and self.sound_effects_enabled:
                 self.win_sound.play()
             self.current_level += 1
             if self.current_level > 50:
                 self.game_state = "you_win"
             else:
-                self.bricks = self.load_level(self.current_level)
+                self.load_level(self.current_level)
 
         # Ball and bottom wall collision
         if self.ball.rect.bottom > self.HEIGHT:
