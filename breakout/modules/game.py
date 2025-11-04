@@ -59,7 +59,11 @@ class Game:
         self.ball_stuck = False
         self.ai_enabled = False
         self.running = True
-        self.game_state = "playing"
+        self.game_state = "welcome"
+        self.total_levels = 50
+
+    def _change_state(self, new_state):
+        self.game_state = new_state
 
     def _load_highscore(self):
         highscore_file = os.path.join(self.base_path, "highscore.txt")
@@ -85,10 +89,10 @@ class Game:
         self.ball.dx = 1
         self.ball.dy = -1
         self.ball.vy = 0
-        self.game_state = "playing"
         self.gravity_enabled = False
         self.magnetic_paddle = False
         self.ball_stuck = False
+        self._change_state("welcome")
 
     def load_level(self, level_number):
         bricks = []
@@ -115,9 +119,39 @@ class Game:
                     bricks.append(brick)
         return bricks
 
+    def draw_welcome_screen(self):
+        self.screen.fill(self.GRAY)
+        welcome_text = self.font.render("Bolo Breakout", True, self.WHITE)
+        level_text = self.font.render(f"Level: {self.current_level}", True, self.WHITE)
+        start_text = self.font.render("Press any key to start", True, self.WHITE)
+
+        self.screen.blit(welcome_text, (self.WIDTH // 2 - welcome_text.get_width() // 2, self.HEIGHT // 2 - 100))
+        self.screen.blit(level_text, (self.WIDTH // 2 - level_text.get_width() // 2, self.HEIGHT // 2))
+        self.screen.blit(start_text, (self.WIDTH // 2 - start_text.get_width() // 2, self.HEIGHT // 2 + 100))
+
+        # Draw level preview
+        preview_bricks = self.load_level(self.current_level)
+        for brick in preview_bricks:
+            brick.draw(self.screen)
+
+        pygame.display.flip()
+
     def run(self):
         while self.running:
-            if self.game_state == "playing":
+            if self.game_state == "welcome":
+                self.draw_welcome_screen()
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        self.running = False
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_LEFT:
+                            self.current_level = max(1, self.current_level - 1)
+                        elif event.key == pygame.K_RIGHT:
+                            self.current_level = min(self.total_levels, self.current_level + 1)
+                        else:
+                            self.bricks = self.load_level(self.current_level)
+                            self._change_state("playing")
+            elif self.game_state == "playing":
                 self.handle_events()
                 self.update()
                 self.draw()
