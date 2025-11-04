@@ -113,7 +113,9 @@ class Game:
         self.ball_stuck = False
 
     def load_level(self, level_number):
-        self.bricks_group.empty()
+        for brick in self.bricks_group:
+            brick.kill()
+
         level_file = os.path.join(self.base_path, "levels", f"level_{level_number}.txt")
         with open(level_file, 'r') as f:
             level_data = [line.strip() for line in f]
@@ -258,7 +260,7 @@ class Game:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.game_state == "welcome":
                     self.current_level = self.selected_level
-                    self.bricks = self.load_level(self.current_level)
+                    self.load_level(self.current_level)
                     self.game_state = "playing"
             if event.type == pygame.KEYDOWN:
                 if self.game_state == "welcome":
@@ -268,7 +270,7 @@ class Game:
                         self.selected_level = min(self.max_level, self.selected_level + 1)
                     else:
                         self.current_level = self.selected_level
-                        self.bricks = self.load_level(self.current_level)
+                        self.load_level(self.current_level)
                         self.game_state = "playing"
                 elif event.key == pygame.K_c:
                     if self.game_state == "playing":
