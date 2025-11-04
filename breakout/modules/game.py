@@ -132,15 +132,24 @@ class Game:
         self.brick_zone_bottom = 0
         for row_idx, line in enumerate(level_data):
             for col_idx, char in enumerate(line):
-                if char in 'XU':
-                    brick_x = offset_x + col_idx * (self.BRICK_WIDTH + self.BRICK_SPACING)
-                    brick_y = offset_y + row_idx * (self.BRICK_HEIGHT + self.BRICK_SPACING)
-                    breakable = (char == 'X')
-                    brick = Brick(brick_x, brick_y, breakable=breakable)
-                    self.all_sprites.add(brick)
-                    self.bricks_group.add(brick)
-                    if brick_y + self.BRICK_HEIGHT > self.brick_zone_bottom:
-                        self.brick_zone_bottom = brick_y + self.BRICK_HEIGHT
+                hits = 0
+                if char == 'X':
+                    hits = 1
+                elif char == 'U':
+                    hits = 0
+                elif '2' <= char <= '9':
+                    hits = int(char)
+                else:
+                    continue
+
+                brick_x = offset_x + col_idx * (self.BRICK_WIDTH + self.BRICK_SPACING)
+                brick_y = offset_y + row_idx * (self.BRICK_HEIGHT + self.BRICK_SPACING)
+
+                brick = Brick(brick_x, brick_y, hits_required=hits)
+                self.all_sprites.add(brick)
+                self.bricks_group.add(brick)
+                if brick_y + self.BRICK_HEIGHT > self.brick_zone_bottom:
+                    self.brick_zone_bottom = brick_y + self.BRICK_HEIGHT
 
     def run(self):
         while self.running:
@@ -408,8 +417,7 @@ class Game:
 
             # --- Destruction Logic (only for breakable bricks) ---
             if brick.breakable:
-                brick.kill()
-                self.score += 10
+                self.score += brick.hit()
 
         # Check for level completion
         if not any(brick.breakable for brick in self.bricks_group):

@@ -51,6 +51,22 @@ unbreakable_brick_surface = pygame.Surface((BRICK_WIDTH, BRICK_HEIGHT), pygame.S
 pygame.draw.rect(unbreakable_brick_surface, BRICK_UNBREAKABLE_COLOR, (0, 0, BRICK_WIDTH, BRICK_HEIGHT), border_radius=5)
 pygame.image.save(unbreakable_brick_surface, os.path.join(ASSETS_DIR, "brick_red.png"))
 
+# --- Generate Multi-Hit Brick Sprites ---
+font = pygame.font.Font(None, 36)
+for i in range(1, 10):
+    brick_surface = pygame.Surface((BRICK_WIDTH, BRICK_HEIGHT), pygame.SRCALPHA)
+    # Define a unique color for each brick level
+    color = (255 - i * 20, 100 + i * 15, 100)
+    pygame.draw.rect(brick_surface, color, (0, 0, BRICK_WIDTH, BRICK_HEIGHT), border_radius=5)
+
+    # Add text indicating the number of hits remaining
+    text = font.render(str(i), True, DARK_GRAY)
+    text_rect = text.get_rect(center=(BRICK_WIDTH // 2, BRICK_HEIGHT // 2))
+    brick_surface.blit(text, text_rect)
+
+    pygame.image.save(brick_surface, os.path.join(ASSETS_DIR, f"brick_{i+1}.png"))
+
+
 print("Default theme assets generated successfully.")
 
 pygame.quit()
