@@ -137,6 +137,8 @@ class Game:
                     self.paddle.x = offset_x + col_idx * (self.BRICK_WIDTH + self.BRICK_SPACING)
                     self.paddle.y = offset_y + row_idx * (self.BRICK_HEIGHT + self.BRICK_SPACING)
                     self.paddle.rect.topleft = (self.paddle.x, self.paddle.y)
+                    self.paddle.target_x = self.paddle.x
+                    self.paddle.target_y = self.paddle.y
                     paddle_defined_in_level = True
                     continue
 
@@ -147,6 +149,8 @@ class Game:
                     hits = 0
                 elif '2' <= char <= '9':
                     hits = int(char)
+                elif char == '0':
+                    hits = 10
                 else:
                     continue
 
@@ -163,6 +167,8 @@ class Game:
             self.paddle.x = self.WIDTH // 2 - self.PADDLE_WIDTH // 2
             self.paddle.y = self.HEIGHT - self.PADDLE_HEIGHT - 10
             self.paddle.rect.topleft = (self.paddle.x, self.paddle.y)
+            self.paddle.target_x = self.paddle.x
+            self.paddle.target_y = self.paddle.y
 
     def run(self):
         while self.running:
@@ -348,6 +354,9 @@ class Game:
                 elif self.quit_rect and self.quit_rect.collidepoint(event.pos):
                     self.running = False
             if self.game_state == "playing":
+                if event.type == pygame.MOUSEMOTION:
+                    self.paddle.target_x += event.rel[0]
+                    self.paddle.target_y += event.rel[1]
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_g:
                         self.gravity_enabled = not self.gravity_enabled
@@ -366,11 +375,6 @@ class Game:
             if target_y < self.brick_zone_bottom:
                 target_y = self.brick_zone_bottom
             self.paddle.move(self.ball.rect.centerx - self.paddle.rect.width // 2, target_y)
-        else:
-            # Player controls the paddle
-            mouse_pos = pygame.mouse.get_pos()
-            self.paddle.move(mouse_pos[0] - self.paddle.rect.width // 2, mouse_pos[1] - self.paddle.rect.height // 2)
-
         # Update paddle position
         self.paddle.update(self.bricks_group)
 
