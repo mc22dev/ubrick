@@ -156,8 +156,10 @@ class Game:
                 self.update()
                 self.draw()
             elif self.game_state == "game_over":
+                self.handle_events()
                 self.draw_game_over()
             elif self.game_state == "you_win":
+                self.handle_events()
                 self.draw_you_win()
             elif self.game_state == "config":
                 self.handle_events()
@@ -344,10 +346,8 @@ class Game:
             self.paddle.move(self.ball.rect.centerx - self.paddle.rect.width // 2, target_y)
         else:
             # Player controls the paddle
-            dx, dy = pygame.mouse.get_rel()
-            new_target_x = self.paddle.target_x + dx
-            new_target_y = self.paddle.target_y + dy
-            self.paddle.move(new_target_x, new_target_y)
+            mouse_pos = pygame.mouse.get_pos()
+            self.paddle.move(mouse_pos[0], self.paddle.rect.y)
 
         # Update paddle position
         self.paddle.update(self.bricks_group)
