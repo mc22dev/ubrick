@@ -129,9 +129,16 @@ class Game:
         offset_x = (self.WIDTH - grid_width) // 2
         offset_y = 50
 
+        paddle_defined_in_level = False
         self.brick_zone_bottom = 0
         for row_idx, line in enumerate(level_data):
             for col_idx, char in enumerate(line):
+                if char == 'P':
+                    self.paddle.rect.x = offset_x + col_idx * (self.BRICK_WIDTH + self.BRICK_SPACING)
+                    self.paddle.rect.y = offset_y + row_idx * (self.BRICK_HEIGHT + self.BRICK_SPACING)
+                    paddle_defined_in_level = True
+                    continue
+
                 hits = 0
                 if char == 'X':
                     hits = 1
@@ -150,6 +157,10 @@ class Game:
                 self.bricks_group.add(brick)
                 if brick_y + self.BRICK_HEIGHT > self.brick_zone_bottom:
                     self.brick_zone_bottom = brick_y + self.BRICK_HEIGHT
+
+        if not paddle_defined_in_level:
+            self.paddle.rect.x = self.WIDTH // 2 - self.PADDLE_WIDTH // 2
+            self.paddle.rect.y = self.HEIGHT - self.PADDLE_HEIGHT - 10
 
     def run(self):
         while self.running:
