@@ -166,6 +166,8 @@ class Game:
                 self.handle_events()
                 self.draw_paused_screen()
 
+            self.clock.tick(60)
+
         pygame.quit()
         sys.exit()
 
@@ -183,22 +185,11 @@ class Game:
 
         pygame.display.flip()
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running = False
-            if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
-                self._reset_game()
-
     def draw_you_win(self):
         self.screen.fill(self.GRAY)
         you_win_text = self.font.render("You Win!", True, self.WHITE)
         self.screen.blit(you_win_text, (self.WIDTH // 2 - you_win_text.get_width() // 2, self.HEIGHT // 2 - you_win_text.get_height() // 2))
         pygame.display.flip()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running = False
-            if event.type == pygame.KEYDOWN:
-                self.running = False
 
     def draw_config_screen(self):
         self.screen.fill(self.GRAY)
@@ -257,6 +248,14 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+
+            if self.game_state == "game_over":
+                if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                    self._reset_game()
+            elif self.game_state == "you_win":
+                if event.type == pygame.KEYDOWN:
+                    self.running = False
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.game_state == "welcome":
                     self.current_level = self.selected_level
@@ -449,4 +448,3 @@ class Game:
             self.screen.blit(fps_text, (10, self.HEIGHT - 40))
 
         pygame.display.flip()
-        self.clock.tick(60)
