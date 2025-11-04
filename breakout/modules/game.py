@@ -62,6 +62,9 @@ class Game:
         self.score = 0
         self.highscore = 0
         self._load_highscore()
+        self.lives = 3
+        self.paddle_start_x = 0
+        self.paddle_start_y = 0
         self.gravity_enabled = False
         self.magnetic_paddle = False
         self.ball_stuck = False
@@ -101,6 +104,7 @@ class Game:
 
     def _reset_game(self):
         self.score = 0
+        self.lives = 3
         self.paddle.rect.x = self.WIDTH // 2 - self.PADDLE_WIDTH // 2
         self.paddle.rect.y = self.HEIGHT - self.PADDLE_HEIGHT - 10
         self.ball.rect.x = self.WIDTH // 2
@@ -169,6 +173,24 @@ class Game:
             self.paddle.rect.topleft = (self.paddle.x, self.paddle.y)
             self.paddle.target_x = self.paddle.x
             self.paddle.target_y = self.paddle.y
+
+        self.paddle_start_x = self.paddle.x
+        self.paddle_start_y = self.paddle.y
+
+    def _lose_life(self):
+        self.lives -= 1
+        if self.lives > 0:
+            self.paddle.x = self.paddle_start_x
+            self.paddle.y = self.paddle_start_y
+            self.paddle.rect.topleft = (self.paddle.x, self.paddle.y)
+            self.paddle.target_x = self.paddle.x
+            self.paddle.target_y = self.paddle.y
+            self.ball_stuck = True
+        else:
+            if self.score > self.highscore:
+                self.highscore = self.score
+                self._save_highscore()
+            self.game_state = "game_over"
 
     def run(self):
         while self.running:
@@ -448,10 +470,7 @@ class Game:
 
         # Ball and bottom wall collision
         if self.ball.rect.bottom > self.HEIGHT:
-            if self.score > self.highscore:
-                self.highscore = self.score
-                self._save_highscore()
-            self.game_state = "game_over"
+            self._lose_life()
 
     def draw(self):
         self.screen.fill(self.GRAY)
@@ -466,6 +485,10 @@ class Game:
         # Draw level
         level_text = self.font.render(f"Level: {self.current_level}", True, self.WHITE)
         self.screen.blit(level_text, (self.WIDTH // 2 - 50, 10))
+
+        # Draw lives
+        lives_text = self.font.render(f"Lives: {self.lives}", True, self.WHITE)
+        self.screen.blit(lives_text, (self.WIDTH - 100, 10))
 
         if self.show_fps:
             fps = self.clock.get_fps()
