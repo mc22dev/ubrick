@@ -39,7 +39,7 @@ class Game:
         self.paddle = Paddle(self.WIDTH // 2 - self.PADDLE_WIDTH // 2, self.HEIGHT - self.PADDLE_HEIGHT - 10, self.PADDLE_WIDTH, self.PADDLE_HEIGHT, self.WHITE, self.WIDTH, self.HEIGHT)
         self.ball = Ball(self.WIDTH // 2, self.HEIGHT // 2, self.BALL_RADIUS, self.WHITE, self.BALL_SPEED, self.WIDTH)
 
-        self.all_sprites = pygame.sprite.RenderUpdates()
+        self.all_sprites = pygame.sprite.Group()
         self.bricks_group = pygame.sprite.Group()
         self.all_sprites.add(self.paddle, self.ball)
 
@@ -376,37 +376,39 @@ class Game:
         collided_brick = pygame.sprite.spritecollideany(self.ball, self.bricks_group)
         if collided_brick:
             brick = collided_brick
-            # Collision detected
+
+            # --- Bounce Logic (applied to all bricks) ---
+            # Position correction
+            overlap_left = self.ball.rect.right - brick.rect.left
+            overlap_right = brick.rect.right - self.ball.rect.left
+            overlap_top = self.ball.rect.bottom - brick.rect.top
+            overlap_bottom = brick.rect.bottom - self.ball.rect.top
+
+            min_overlap_x = min(overlap_left, overlap_right)
+            min_overlap_y = min(overlap_top, overlap_bottom)
+
+            if min_overlap_x < min_overlap_y:
+                # Horizontal collision
+                if overlap_left < overlap_right:
+                    self.ball.rect.right = brick.rect.left
+                else:
+                    self.ball.rect.left = brick.rect.right
+                self.ball.vx *= -1
+            else:
+                # Vertical collision
+                if overlap_top < overlap_bottom:
+                    self.ball.rect.bottom = brick.rect.top
+                else:
+                    self.ball.rect.top = brick.rect.bottom
+                self.ball.vy *= -1
+
+            if self.sound_enabled and self.sound_effects_enabled:
+                self.brick_hit_sound.play()
+
+            # --- Destruction Logic (only for breakable bricks) ---
             if brick.breakable:
                 brick.kill()
                 self.score += 10
-            else:
-                # Position correction logic for unbreakable bricks
-                overlap_left = self.ball.rect.right - brick.rect.left
-                overlap_right = brick.rect.right - self.ball.rect.left
-                overlap_top = self.ball.rect.bottom - brick.rect.top
-                overlap_bottom = brick.rect.bottom - self.ball.rect.top
-
-                min_overlap_x = min(overlap_left, overlap_right)
-                min_overlap_y = min(overlap_top, overlap_bottom)
-
-                if min_overlap_x < min_overlap_y:
-                    # Horizontal collision
-                    if overlap_left < overlap_right:
-                        self.ball.rect.right = brick.rect.left
-                    else:
-                        self.ball.rect.left = brick.rect.right
-                    self.ball.vx *= -1
-                else:
-                    # Vertical collision
-                    if overlap_top < overlap_bottom:
-                        self.ball.rect.bottom = brick.rect.top
-                    else:
-                        self.ball.rect.top = brick.rect.bottom
-                    self.ball.vy *= -1
-
-                if self.sound_enabled and self.sound_effects_enabled:
-                    self.brick_hit_sound.play()
 
         # Check for level completion
         if not any(brick.breakable for brick in self.bricks_group):
@@ -428,8 +430,7 @@ class Game:
     def draw(self):
         self.screen.fill(self.GRAY)
 
-        # Optimized drawing
-        dirty_rects = self.all_sprites.draw(self.screen)
+        self.all_sprites.draw(self.screen)
 
         # Draw score
         score_text = self.font.render(f"Score: {self.score}", True, self.WHITE)
@@ -445,5 +446,5 @@ class Game:
             fps_text = self.font.render(f"FPS: {fps:.2f}", True, self.WHITE)
             self.screen.blit(fps_text, (10, self.HEIGHT - 40))
 
-        pygame.display.update(dirty_rects)
+        pygame.display.flip()
         self.clock.tick(60)
