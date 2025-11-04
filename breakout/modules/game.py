@@ -17,7 +17,7 @@ class Game:
             self.sound_enabled = False
 
         # Constants
-        self.WIDTH, self.HEIGHT = 800, 600
+        self.WIDTH, self.HEIGHT = 1280, 720
         self.GRAY = (0, 0, 0) # Background Color
         self.WHITE = (255, 255, 255)
         self.PADDLE_WIDTH = 100
