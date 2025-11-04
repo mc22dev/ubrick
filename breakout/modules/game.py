@@ -347,7 +347,7 @@ class Game:
         else:
             # Player controls the paddle
             mouse_pos = pygame.mouse.get_pos()
-            self.paddle.move(mouse_pos[0], self.paddle.rect.y)
+            self.paddle.move(mouse_pos[0] - self.paddle.rect.width // 2, mouse_pos[1] - self.paddle.rect.height // 2)
 
         # Update paddle position
         self.paddle.update(self.bricks_group)
