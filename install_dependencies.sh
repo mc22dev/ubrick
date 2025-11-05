@@ -2,17 +2,17 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-# Check if the virtual environment directory exists.
-if [ ! -d ".venv" ]; then
-    echo "Creating virtual environment..."
-    python3 -m venv .venv
+# Remove the existing virtual environment if it exists.
+if [ -d ".venv" ]; then
+    echo "Removing existing virtual environment..."
+    rm -rf .venv
 fi
 
-echo "Activating virtual environment..."
-source .venv/bin/activate
+# Create a new virtual environment.
+echo "Creating virtual environment..."
+python3 -m venv .venv
 
 echo "Installing dependencies..."
-pip install -r breakout/requirements.txt
+.venv/bin/pip install -r breakout/requirements.txt
 
-echo "Installation complete. The virtual environment is ready."
-echo "To activate it in your shell, run: source .venv/bin/activate"
+echo "Installation complete."

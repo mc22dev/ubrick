@@ -16,6 +16,7 @@ class Ball(pygame.sprite.Sprite):
         self.shape = pymunk.Circle(self.body, radius)
         self.shape.elasticity = 0.95
         self.shape.friction = 0.9
+        self.shape.collision_type = 1
         space.add(self.body, self.shape)
 
     def update(self):

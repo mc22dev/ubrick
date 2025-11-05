@@ -18,7 +18,7 @@ class Brick(pygame.sprite.Sprite):
             shape = pymunk.Poly.create_box(body, self.rect.size)
             shape.elasticity = 0.5
             shape.friction = 0.7
-            shape.collision_type = 1 # Differentiate bricks
+            shape.collision_type = 2 # Differentiate bricks
             shape.parent_brick = self # Link back to the sprite
             space.add(body, shape)
 
