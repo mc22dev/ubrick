@@ -125,7 +125,7 @@ class Game:
             level_data = [line.strip() for line in f]
 
         num_rows = len(level_data)
-        num_cols = len(level_data[0]) if num_rows > 0 else 0
+        num_cols = max(len(row) for row in level_data) if level_data else 0
 
         grid_width = num_cols * (self.BRICK_WIDTH + self.BRICK_SPACING) - self.BRICK_SPACING
         grid_height = num_rows * (self.BRICK_HEIGHT + self.BRICK_SPACING) - self.BRICK_SPACING
