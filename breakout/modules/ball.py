@@ -43,12 +43,5 @@ class Ball(pygame.sprite.Sprite):
         self.rect.bottom = paddle.rect.top
         self.vy *= -1
 
-        # Calculate bounce angle based on impact point
-        offset = self.rect.centerx - paddle.rect.centerx
-        normalized_offset = offset / (paddle.rect.width / 2.0)
-
-        angle_influence = 5
-        self.vx = normalized_offset * angle_influence
-
         # Transfer paddle velocity to the ball
         self.vx += paddle.velocity * 0.5
