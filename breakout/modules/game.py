@@ -176,6 +176,7 @@ class Game:
 
         self.paddle_start_x = self.paddle.x
         self.paddle_start_y = self.paddle.y
+        self.ball_stuck = True
 
     def _lose_life(self):
         self.lives -= 1
@@ -287,8 +288,14 @@ class Game:
     def draw_welcome_screen(self):
         self.screen.fill(self.GRAY)
 
+        # Manually update ball position for preview
+        self.ball.rect.x = self.paddle.rect.x + self.paddle.rect.width // 2 - self.ball.rect.width // 2
+        self.ball.rect.y = self.paddle.rect.y - self.ball.rect.height
+
         # Draw the bricks for the selected level
         self.bricks_group.draw(self.screen)
+        self.screen.blit(self.paddle.image, self.paddle.rect)
+        self.screen.blit(self.ball.image, self.ball.rect)
 
         title_text = self.font.render("Bolo Breakout", True, self.WHITE)
         level_text = self.font.render(f"Level: {self.selected_level}/{self.max_level}", True, self.WHITE)
