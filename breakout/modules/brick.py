@@ -14,7 +14,7 @@ class Brick(pygame.sprite.Sprite):
         # Physics
         if self.breakable:
             body = pymunk.Body(body_type=pymunk.Body.STATIC)
-            body.position = x, y
+            body.position = x + self.rect.width / 2, y + self.rect.height / 2
             shape = pymunk.Poly.create_box(body, self.rect.size)
             shape.elasticity = 0.5
             shape.friction = 0.7

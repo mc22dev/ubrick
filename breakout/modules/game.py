@@ -41,8 +41,15 @@ class Game:
         self._create_walls()
 
         # Collision handler
-        handler = self.space.add_wildcard_collision_handler(2)
-        handler.begin = self.handle_ball_brick_collision
+        handler_ball_brick = self.space.add_collision_handler(1, 2)
+        handler_ball_brick.begin = self.handle_ball_brick_collision
+
+        handler_ball_paddle = self.space.add_collision_handler(1, 3)
+        handler_ball_paddle.begin = self.handle_ball_paddle_collision
+        handler_ball_paddle.post_solve = self.handle_ball_paddle_collision_post_solve
+
+        handler_paddle_brick = self.space.add_collision_handler(3, 2)
+        handler_paddle_brick.begin = self.handle_paddle_brick_collision
 
         # Game objects
         self.paddle = Paddle(self.WIDTH // 2 - self.PADDLE_WIDTH // 2, self.HEIGHT - self.PADDLE_HEIGHT - 10, self.PADDLE_WIDTH, self.PADDLE_HEIGHT, self.space)
@@ -112,6 +119,18 @@ class Game:
             space.remove(brick_shape, brick_shape.body)
             brick.kill()
         return True
+
+    def handle_ball_paddle_collision(self, arbiter, space, data):
+        if self.magnetic_paddle:
+            self.ball_stuck = True
+        return True
+
+    def handle_ball_paddle_collision_post_solve(self, arbiter, space, data):
+        paddle_velocity = self.paddle.body.velocity
+        self.ball.body.apply_impulse_at_local_point((paddle_velocity.x * 0.1, 0))
+
+    def handle_paddle_brick_collision(self, arbiter, space, data):
+        return False
 
     def _get_max_level(self):
         levels_path = os.path.join(self.base_path, "levels")
@@ -431,7 +450,7 @@ class Game:
                     self.running = False
             if self.game_state == "playing":
                 if event.type == pygame.MOUSEMOTION:
-                    self.paddle.set_position(event.pos[0])
+                    self.paddle.set_position((event.pos[0], self.paddle.body.position.y))
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_m:
                         self.magnetic_paddle = not self.magnetic_paddle
@@ -445,7 +464,7 @@ class Game:
         if self.ai_enabled:
             # AI controls the paddle
             target_x = self.ball.body.position.x
-            self.paddle.set_position(target_x)
+            self.paddle.set_position((target_x, self.paddle.body.position.y))
 
         # Step the physics simulation
         dt = 1.0 / 60.0
