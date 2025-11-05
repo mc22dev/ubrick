@@ -18,12 +18,9 @@ class Ball(pygame.sprite.Sprite):
         if gravity_enabled:
             self.vy += gravity
             # Apply friction
-            if self.vx > 0.1:
-                self.vx -= self.FRICTION
-            elif self.vx < -0.1:
-                self.vx += self.FRICTION
-            else:
-                self.vx = 0
+            self.vx *= (1 - self.FRICTION)
+            self.vy *= (1 - self.FRICTION)
+
 
         self.rect.x += self.vx
         self.rect.y += self.vy
@@ -42,3 +39,16 @@ class Ball(pygame.sprite.Sprite):
                 self.vy *= -0.7
             else:
                 self.vy *= -1
+    def handle_paddle_collision(self, paddle):
+        self.rect.bottom = paddle.rect.top
+        self.vy *= -1
+
+        # Calculate bounce angle based on impact point
+        offset = self.rect.centerx - paddle.rect.centerx
+        normalized_offset = offset / (paddle.rect.width / 2.0)
+
+        angle_influence = 5
+        self.vx = normalized_offset * angle_influence
+
+        # Transfer paddle velocity to the ball
+        self.vx += paddle.velocity * 0.5

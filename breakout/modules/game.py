@@ -435,10 +435,7 @@ class Game:
             if self.magnetic_paddle:
                 self.ball_stuck = True
             else:
-                self.ball.rect.bottom = self.paddle.rect.top
-                self.ball.vy *= -1
-                # Transfer paddle velocity to the ball
-                self.ball.vx += self.paddle.velocity * 0.2
+                self.ball.handle_paddle_collision(self.paddle)
                 if self.sound_enabled and self.sound_effects_enabled:
                     self.paddle_hit_sound.play()
 
