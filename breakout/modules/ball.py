@@ -9,7 +9,7 @@ class Ball(pygame.sprite.Sprite):
         self.vx = speed
         self.vy = -speed
         self.screen_width = screen_width
-        self.FRICTION = 0.01
+        self.FRICTION = 0.03
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
