@@ -5,6 +5,7 @@ from modules.ball import Ball
 from modules.brick import Brick
 from modules.music import generate_music
 import os
+import pymunk
 
 class Game:
     def __init__(self):
@@ -27,7 +28,6 @@ class Game:
         self.BRICK_WIDTH = 80
         self.BRICK_HEIGHT = 30
         self.BRICK_SPACING = 5
-        self.GRAVITY = 0.2
 
         # Screen
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -35,9 +35,18 @@ class Game:
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 36)
 
+        # Physics
+        self.space = pymunk.Space()
+        self.space.gravity = (0.0, 900.0)
+        self._create_walls()
+
+        # Collision handler
+        handler = self.space.add_collision_handler(0, 1)
+        handler.begin = self.handle_ball_brick_collision
+
         # Game objects
-        self.paddle = Paddle(self.WIDTH // 2 - self.PADDLE_WIDTH // 2, self.HEIGHT - self.PADDLE_HEIGHT - 10, self.PADDLE_WIDTH, self.PADDLE_HEIGHT, self.WHITE, self.WIDTH, self.HEIGHT)
-        self.ball = Ball(self.WIDTH // 2, self.HEIGHT // 2, self.BALL_RADIUS, self.WHITE, self.BALL_SPEED, self.WIDTH)
+        self.paddle = Paddle(self.WIDTH // 2 - self.PADDLE_WIDTH // 2, self.HEIGHT - self.PADDLE_HEIGHT - 10, self.PADDLE_WIDTH, self.PADDLE_HEIGHT, self.space)
+        self.ball = Ball(self.WIDTH // 2, self.HEIGHT // 2, self.BALL_RADIUS, self.space)
 
         self.all_sprites = pygame.sprite.Group()
         self.bricks_group = pygame.sprite.Group()
@@ -65,9 +74,8 @@ class Game:
         self.lives = 3
         self.paddle_start_x = 0
         self.paddle_start_y = 0
-        self.gravity_enabled = False
         self.magnetic_paddle = False
-        self.ball_stuck = False
+        self.ball_stuck = True
         self.ai_enabled = False
         self.running = True
         self.game_state = "welcome"
@@ -83,6 +91,27 @@ class Game:
         self.quit_rect = None
         self.show_fps = False
         self.fps_rect = None
+
+    def _create_walls(self):
+        walls = [
+            pymunk.Segment(self.space.static_body, (0, 0), (self.WIDTH, 0), 1),
+            pymunk.Segment(self.space.static_body, (0, 0), (0, self.HEIGHT), 1),
+            pymunk.Segment(self.space.static_body, (self.WIDTH, 0), (self.WIDTH, self.HEIGHT), 1)
+        ]
+        for wall in walls:
+            wall.elasticity = 0.8
+            wall.friction = 0.8
+            self.space.add(wall)
+
+    def handle_ball_brick_collision(self, arbiter, space, data):
+        brick_shape = arbiter.shapes[1]
+        brick = brick_shape.parent_brick
+        points = brick.hit()
+        self.score += points
+        if points > 0:
+            space.remove(brick_shape, brick_shape.body)
+            brick.kill()
+        return True
 
     def _get_max_level(self):
         levels_path = os.path.join(self.base_path, "levels")
@@ -161,7 +190,7 @@ class Game:
                 brick_x = offset_x + col_idx * (self.BRICK_WIDTH + self.BRICK_SPACING)
                 brick_y = offset_y + row_idx * (self.BRICK_HEIGHT + self.BRICK_SPACING)
 
-                brick = Brick(brick_x, brick_y, hits_required=hits)
+                brick = Brick(brick_x, brick_y, hits_required=hits, space=self.space)
                 self.all_sprites.add(brick)
                 self.bricks_group.add(brick)
                 if brick_y + self.BRICK_HEIGHT > self.brick_zone_bottom:
@@ -402,83 +431,36 @@ class Game:
                     self.running = False
             if self.game_state == "playing":
                 if event.type == pygame.MOUSEMOTION:
-                    self.paddle.target_x += event.rel[0]
-                    self.paddle.target_y += event.rel[1]
+                    self.paddle.set_position(event.pos[0])
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_g:
-                        self.gravity_enabled = not self.gravity_enabled
                     if event.key == pygame.K_m:
                         self.magnetic_paddle = not self.magnetic_paddle
                     if event.key == pygame.K_a:
                         self.ai_enabled = not self.ai_enabled
                 if event.type == pygame.MOUSEBUTTONDOWN and self.ball_stuck:
                     self.ball_stuck = False
+                    self.ball.body.apply_impulse_at_local_point((0, -700))
 
     def update(self):
-        # Set paddle target based on AI or player input
         if self.ai_enabled:
             # AI controls the paddle
-            target_y = self.ball.rect.centery - self.paddle.rect.height // 2
-            if target_y < self.brick_zone_bottom:
-                target_y = self.brick_zone_bottom
-            self.paddle.move(self.ball.rect.centerx - self.paddle.rect.width // 2, target_y)
-        # Update paddle position
-        self.paddle.update(self.bricks_group)
+            target_x = self.ball.body.position.x
+            self.paddle.set_position(target_x)
 
-        # Ball movement
-        if not self.ball_stuck:
-            self.ball.move(self.gravity_enabled, self.GRAVITY)
+        # Step the physics simulation
+        dt = 1.0 / 60.0
+        self.space.step(dt)
 
-        # Ball and paddle collision
-        paddle_swept_rect = self.paddle.rect.union(pygame.Rect(self.paddle.prev_x, self.paddle.prev_y, self.paddle.rect.width, self.paddle.rect.height))
-        if self.ball.rect.colliderect(paddle_swept_rect) and self.ball.vy > 0:
-            if self.magnetic_paddle:
-                self.ball_stuck = True
-            else:
-                self.ball.handle_paddle_collision(self.paddle)
-                if self.sound_enabled and self.sound_effects_enabled:
-                    self.paddle_hit_sound.play()
+        # Update sprite positions from physics bodies
+        self.all_sprites.update()
 
         if self.ball_stuck:
-            self.ball.rect.x = self.paddle.rect.x + self.paddle.rect.width // 2 - self.ball.rect.width // 2
-            self.ball.rect.y = self.paddle.rect.y - self.ball.rect.height
+            self.ball.body.position = self.paddle.body.position.x, self.paddle.body.position.y - self.PADDLE_HEIGHT
+            self.ball.body.velocity = 0, 0
 
-        # Ball and brick collision
-        collided_brick = pygame.sprite.spritecollideany(self.ball, self.bricks_group)
-        if collided_brick:
-            brick = collided_brick
-
-            # --- Bounce Logic (applied to all bricks) ---
-            # Position correction
-            overlap_left = self.ball.rect.right - brick.rect.left
-            overlap_right = brick.rect.right - self.ball.rect.left
-            overlap_top = self.ball.rect.bottom - brick.rect.top
-            overlap_bottom = brick.rect.bottom - self.ball.rect.top
-
-            min_overlap_x = min(overlap_left, overlap_right)
-            min_overlap_y = min(overlap_top, overlap_bottom)
-
-            if min_overlap_x < min_overlap_y:
-                # Horizontal collision
-                if overlap_left < overlap_right:
-                    self.ball.rect.right = brick.rect.left
-                else:
-                    self.ball.rect.left = brick.rect.right
-                self.ball.vx *= -1
-            else:
-                # Vertical collision
-                if overlap_top < overlap_bottom:
-                    self.ball.rect.bottom = brick.rect.top
-                else:
-                    self.ball.rect.top = brick.rect.bottom
-                self.ball.vy *= -1
-
-            if self.sound_enabled and self.sound_effects_enabled:
-                self.brick_hit_sound.play()
-
-            # --- Destruction Logic (only for breakable bricks) ---
-            if brick.breakable:
-                self.score += brick.hit()
+        # Check for ball out of bounds
+        if self.ball.body.position.y > self.HEIGHT:
+            self._lose_life()
 
         # Check for level completion
         if not any(brick.breakable for brick in self.bricks_group):
@@ -489,10 +471,6 @@ class Game:
                 self.game_state = "you_win"
             else:
                 self.load_level(self.current_level)
-
-        # Ball and bottom wall collision
-        if self.ball.rect.bottom > self.HEIGHT:
-            self._lose_life()
 
     def draw(self):
         self.screen.fill(self.GRAY)

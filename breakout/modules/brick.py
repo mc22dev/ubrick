@@ -1,14 +1,26 @@
 import pygame
 import os
+import pymunk
 
 class Brick(pygame.sprite.Sprite):
-    def __init__(self, x, y, hits_required=1):
+    def __init__(self, x, y, hits_required, space):
         super().__init__()
         self.hits_required = hits_required
         self.breakable = hits_required > 0
 
         self.update_image()
         self.rect = self.image.get_rect(topleft=(x, y))
+
+        # Physics
+        if self.breakable:
+            body = pymunk.Body(body_type=pymunk.Body.STATIC)
+            body.position = x, y
+            shape = pymunk.Poly.create_box(body, self.rect.size)
+            shape.elasticity = 0.5
+            shape.friction = 0.7
+            shape.collision_type = 1 # Differentiate bricks
+            shape.parent_brick = self # Link back to the sprite
+            space.add(body, shape)
 
     def update_image(self):
         if not self.breakable:

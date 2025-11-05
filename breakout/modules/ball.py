@@ -1,47 +1,23 @@
 import pygame
 import os
+import pymunk
 
 class Ball(pygame.sprite.Sprite):
-    def __init__(self, x, y, radius, color, speed, screen_width):
+    def __init__(self, x, y, radius, space):
         super().__init__()
         self.image = pygame.image.load(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "default", "ball.png")).convert_alpha()
         self.rect = self.image.get_rect(center=(x, y))
-        self.vx = speed
-        self.vy = -speed
-        self.screen_width = screen_width
-        self.FRICTION = 0.03
 
-    def draw(self, screen):
-        screen.blit(self.image, self.rect)
+        # Physics
+        mass = 1
+        moment = pymunk.moment_for_circle(mass, 0, radius)
+        self.body = pymunk.Body(mass, moment)
+        self.body.position = x, y
+        self.shape = pymunk.Circle(self.body, radius)
+        self.shape.elasticity = 0.95
+        self.shape.friction = 0.9
+        space.add(self.body, self.shape)
 
-    def move(self, gravity_enabled, gravity):
-        if gravity_enabled:
-            self.vy += gravity
-            # Apply friction
-            self.vx *= (1 - self.FRICTION)
-            self.vy *= (1 - self.FRICTION)
-
-
-        self.rect.x += self.vx
-        self.rect.y += self.vy
-
-        # Wall collision
-        if self.rect.left < 0:
-            self.rect.left = 0
-            self.vx *= -0.7
-        elif self.rect.right > self.screen_width:
-            self.rect.right = self.screen_width
-            self.vx *= -0.7
-
-        if self.rect.top < 0:
-            self.rect.top = 0
-            if gravity_enabled:
-                self.vy *= -0.7
-            else:
-                self.vy *= -1
-    def handle_paddle_collision(self, paddle):
-        self.rect.bottom = paddle.rect.top
-        self.vy *= -1
-
-        # Transfer paddle velocity to the ball
-        self.vx += paddle.velocity * 0.5
+    def update(self):
+        self.rect.centerx = self.body.position.x
+        self.rect.centery = self.body.position.y
