@@ -12,15 +12,14 @@ class Brick(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(x, y))
 
         # Physics
-        if self.breakable:
-            body = pymunk.Body(body_type=pymunk.Body.STATIC)
-            body.position = x + self.rect.width / 2, y + self.rect.height / 2
-            shape = pymunk.Poly.create_box(body, self.rect.size)
-            shape.elasticity = 0.5
-            shape.friction = 0.7
-            shape.collision_type = 2 # Differentiate bricks
-            shape.parent_brick = self # Link back to the sprite
-            space.add(body, shape)
+        body = pymunk.Body(body_type=pymunk.Body.STATIC)
+        body.position = x + self.rect.width / 2, y + self.rect.height / 2
+        shape = pymunk.Poly.create_box(body, self.rect.size)
+        shape.elasticity = 0.5
+        shape.friction = 0.7
+        shape.collision_type = 2 # Differentiate bricks
+        shape.parent_brick = self # Link back to the sprite
+        space.add(body, shape)
 
     def update_image(self):
         if not self.breakable:
