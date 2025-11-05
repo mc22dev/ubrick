@@ -41,7 +41,7 @@ class Game:
         self._create_walls()
 
         # Collision handler
-        handler = self.space.add_collision_handler(1, 2)
+        handler = self.space.add_wildcard_collision_handler(2)
         handler.begin = self.handle_ball_brick_collision
 
         # Game objects
