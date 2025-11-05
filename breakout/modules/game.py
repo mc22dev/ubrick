@@ -430,8 +430,7 @@ class Game:
             self.ball.move(self.gravity_enabled, self.GRAVITY)
 
         # Ball and paddle collision
-        paddle_swept_rect = self.paddle.rect.union(pygame.Rect(self.paddle.prev_x, self.paddle.prev_y, self.paddle.rect.width, self.paddle.rect.height))
-        if self.ball.rect.colliderect(paddle_swept_rect):
+        if self.ball.rect.colliderect(self.paddle.rect):
             if self.magnetic_paddle:
                 self.ball_stuck = True
             else:
