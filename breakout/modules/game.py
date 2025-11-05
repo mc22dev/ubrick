@@ -286,14 +286,22 @@ class Game:
 
     def draw_welcome_screen(self):
         self.screen.fill(self.GRAY)
+
+        # Draw the bricks for the selected level
+        self.bricks_group.draw(self.screen)
+
         title_text = self.font.render("Bolo Breakout", True, self.WHITE)
         level_text = self.font.render(f"Level: {self.selected_level}/{self.max_level}", True, self.WHITE)
         controls_text = self.font.render("Use left/right arrows to change level", True, self.WHITE)
         prompt_text = self.font.render("Press any key to start", True, self.WHITE)
-        self.screen.blit(title_text, (self.WIDTH // 2 - title_text.get_width() // 2, self.HEIGHT // 2 - 100))
-        self.screen.blit(level_text, (self.WIDTH // 2 - level_text.get_width() // 2, self.HEIGHT // 2 - 50))
-        self.screen.blit(controls_text, (self.WIDTH // 2 - controls_text.get_width() // 2, self.HEIGHT // 2))
-        self.screen.blit(prompt_text, (self.WIDTH // 2 - prompt_text.get_width() // 2, self.HEIGHT // 2 + 50))
+
+        # Adjust text positions to not overlap with the brick preview
+        text_y_start = self.HEIGHT - 200
+        self.screen.blit(title_text, (self.WIDTH // 2 - title_text.get_width() // 2, text_y_start))
+        self.screen.blit(level_text, (self.WIDTH // 2 - level_text.get_width() // 2, text_y_start + 50))
+        self.screen.blit(controls_text, (self.WIDTH // 2 - controls_text.get_width() // 2, text_y_start + 100))
+        self.screen.blit(prompt_text, (self.WIDTH // 2 - prompt_text.get_width() // 2, text_y_start + 150))
+
         pygame.display.flip()
 
     def handle_events(self):
@@ -317,8 +325,10 @@ class Game:
                 if self.game_state == "welcome":
                     if event.key == pygame.K_LEFT:
                         self.selected_level = max(1, self.selected_level - 1)
+                        self.load_level(self.selected_level)
                     elif event.key == pygame.K_RIGHT:
                         self.selected_level = min(self.max_level, self.selected_level + 1)
+                        self.load_level(self.selected_level)
                     else:
                         self.current_level = self.selected_level
                         self.load_level(self.current_level)
