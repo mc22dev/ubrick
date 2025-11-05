@@ -297,13 +297,21 @@ class Game:
         self.screen.blit(self.paddle.image, self.paddle.rect)
         self.screen.blit(self.ball.image, self.ball.rect)
 
+        # Create a semi-transparent panel for the text
+        panel_height = 200
+        panel_y_start = self.HEIGHT - 220
+        text_panel = pygame.Surface((self.WIDTH, panel_height))
+        text_panel.set_alpha(150)
+        text_panel.fill((0, 0, 0))  # Black background
+        self.screen.blit(text_panel, (0, panel_y_start))
+
         title_text = self.font.render("Bolo Breakout", True, self.WHITE)
         level_text = self.font.render(f"Level: {self.selected_level}/{self.max_level}", True, self.WHITE)
         controls_text = self.font.render("Use left/right arrows to change level", True, self.WHITE)
         prompt_text = self.font.render("Press any key to start", True, self.WHITE)
 
-        # Adjust text positions to not overlap with the brick preview
-        text_y_start = self.HEIGHT - 200
+        # Adjust text positions to be on the panel
+        text_y_start = panel_y_start + 20
         self.screen.blit(title_text, (self.WIDTH // 2 - title_text.get_width() // 2, text_y_start))
         self.screen.blit(level_text, (self.WIDTH // 2 - level_text.get_width() // 2, text_y_start + 50))
         self.screen.blit(controls_text, (self.WIDTH // 2 - controls_text.get_width() // 2, text_y_start + 100))
