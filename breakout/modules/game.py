@@ -89,6 +89,7 @@ class Game:
         self.max_level = self._get_max_level()
 
         # Config screen button rects
+        self.ball_paddle_joint = self._create_ball_paddle_joint(self.ball.body, self.paddle.body)
         self.gravity_rect = None
         self.magnetic_rect = None
         self.ai_rect = None
@@ -97,6 +98,12 @@ class Game:
         self.quit_rect = None
         self.show_fps = False
         self.fps_rect = None
+
+    def _create_ball_paddle_joint(self, ball_body, paddle_body):
+        # Create a joint between the ball and the paddle
+        pivot_joint = pymunk.PivotJoint(ball_body, paddle_body, (0, 0), (0, 20))
+        self.space.add(pivot_joint)
+        return pivot_joint
 
     def _create_walls(self):
         walls = [
@@ -129,7 +136,15 @@ class Game:
         self.ball.body.apply_impulse_at_local_point((paddle_velocity.x * 0.1, paddle_velocity.y * 0.1))
 
     def handle_paddle_brick_collision(self, arbiter, space, data):
-        return False
+        return True
+
+    def _launch_ball(self):
+        if self.ball_paddle_joint is not None:
+            self.space.remove(self.ball_paddle_joint)
+            self.ball_paddle_joint = None
+
+        impulse = (0, -900)
+        self.ball.body.apply_impulse_at_local_point(impulse)
 
     def _get_max_level(self):
         levels_path = os.path.join(self.base_path, "levels")
@@ -457,7 +472,7 @@ class Game:
                         self.ai_enabled = not self.ai_enabled
                 if event.type == pygame.MOUSEBUTTONDOWN and self.ball_stuck:
                     self.ball_stuck = False
-                    self.ball.body.apply_impulse_at_local_point((0, -700))
+                    self._launch_ball()
 
     def update(self):
         if self.ai_enabled:
@@ -475,9 +490,11 @@ class Game:
         # Update sprite positions from physics bodies
         self.all_sprites.update()
 
-        if self.ball_stuck:
-            self.ball.body.position = self.paddle.body.position.x, self.paddle.body.position.y - self.PADDLE_HEIGHT
-            self.ball.body.velocity = 0, 0
+        if self.ball_stuck and self.ball_paddle_joint is None:
+            self.ball_paddle_joint = self._create_ball_paddle_joint(self.ball.body, self.paddle.body)
+        elif not self.ball_stuck and self.ball_paddle_joint is not None:
+            self.space.remove(self.ball_paddle_joint)
+            self.ball_paddle_joint = None
 
         # Check for ball out of bounds
         if self.ball.body.position.y > self.HEIGHT:
