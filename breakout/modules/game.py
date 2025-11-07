@@ -78,8 +78,7 @@ class Game:
         self.highscore = 0
         self._load_highscore()
         self.lives = 3
-        self.paddle_start_x = 0
-        self.paddle_start_y = 0
+        self.paddle_start_position = (0, 0)
         self.magnetic_paddle = False
         self.ball_stuck = True
         self.ai_enabled = False
@@ -230,22 +229,22 @@ class Game:
                     self.brick_zone_bottom = brick_y + self.BRICK_HEIGHT
 
         if not paddle_defined_in_level:
-            self.paddle.x = self.WIDTH // 2 - self.PADDLE_WIDTH // 2
-            self.paddle.y = self.HEIGHT - self.PADDLE_HEIGHT - 10
-            self.paddle.rect.topleft = (self.paddle.x, self.paddle.y)
-            self.paddle.target_x = self.paddle.x
-            self.paddle.target_y = self.paddle.y
+            paddle_x = self.WIDTH // 2 - self.PADDLE_WIDTH // 2
+            paddle_y = self.HEIGHT - self.PADDLE_HEIGHT - 10
+            self.paddle.body.position = paddle_x, paddle_y
+            self.paddle.body.velocity = 0, 0
 
-        self.paddle_start_x = self.paddle.x
-        self.paddle_start_y = self.paddle.y
+        self.paddle_start_position = self.paddle.body.position
+        self.ball.body.position = self.paddle.body.position.x, self.paddle.body.position.y - self.PADDLE_HEIGHT
+        self.ball.body.velocity = 0, 0
         self.ball_stuck = True
 
     def _lose_life(self):
         self.lives -= 1
         if self.lives > 0:
-            self.paddle.body.position = self.paddle_start_x, self.paddle_start_y
+            self.paddle.body.position = self.paddle_start_position
             self.paddle.body.velocity = 0, 0
-            self.ball.body.position = self.paddle_start_x, self.paddle_start_y - self.PADDLE_HEIGHT
+            self.ball.body.position = self.paddle_start_position[0], self.paddle_start_position[1] - self.PADDLE_HEIGHT
             self.ball.body.velocity = 0, 0
             self.ball_stuck = True
         else:
