@@ -101,7 +101,7 @@ class Game:
 
     def _create_ball_paddle_joint(self, ball_body, paddle_body):
         # Create a joint between the ball and the paddle
-        pivot_joint = pymunk.PivotJoint(ball_body, paddle_body, (0, 0), (0, 20))
+        pivot_joint = pymunk.PivotJoint(ball_body, paddle_body, (0, 0), (0, -20))
         self.space.add(pivot_joint)
         return pivot_joint
 
@@ -243,11 +243,10 @@ class Game:
     def _lose_life(self):
         self.lives -= 1
         if self.lives > 0:
-            self.paddle.x = self.paddle_start_x
-            self.paddle.y = self.paddle_start_y
-            self.paddle.rect.topleft = (self.paddle.x, self.paddle.y)
-            self.paddle.target_x = self.paddle.x
-            self.paddle.target_y = self.paddle.y
+            self.paddle.body.position = self.paddle_start_x, self.paddle_start_y
+            self.paddle.body.velocity = 0, 0
+            self.ball.body.position = self.paddle_start_x, self.paddle_start_y - self.PADDLE_HEIGHT
+            self.ball.body.velocity = 0, 0
             self.ball_stuck = True
         else:
             if self.score > self.highscore:
